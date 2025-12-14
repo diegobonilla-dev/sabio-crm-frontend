@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -258,12 +259,12 @@ export default function LoginPage() {
                   Recuérdame
                 </Label>
               </div>
-              <a
-                href="#"
+              <Link
+                href="/forgot-password"
                 className="text-sm font-medium text-emerald-600 hover:text-emerald-500 transition-colors"
               >
                 ¿Olvidaste tu contraseña?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}
