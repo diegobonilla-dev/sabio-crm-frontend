@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +16,6 @@ import { forgotPasswordSchema } from "@/lib/validations/passwordReset.schema";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
 
   const {
     register,
@@ -30,7 +28,6 @@ export default function ForgotPasswordPage() {
   const { mutate: sendCode, isPending, isError, error } = useForgotPassword();
 
   const onSubmit = (data) => {
-    setEmail(data.email);
     sendCode(data.email, {
       onSuccess: () => {
         // Redirigir a verify-otp con el email en query params

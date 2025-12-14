@@ -68,6 +68,7 @@ function VerifyOTPContent() {
       setValue("otp", otp);
       handleSubmit(onSubmit)();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otp]);
 
   const onSubmit = () => {
