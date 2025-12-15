@@ -55,26 +55,8 @@ export default function FincaFormModal({ open, onOpenChange, finca }) {
     const fetchEmpresas = async () => {
       try {
         setIsLoadingEmpresas(true);
-        // TODO: Crear endpoint GET /empresas en el backend
-        // Por ahora, intentamos obtenerlas de leads convertidos
-        const response = await axiosInstance.get("/leads");
-        const leadsConvertidos = response.data.filter(lead => lead.empresa_convertida);
-
-        // Extraer empresas únicas
-        const empresasUnicas = [];
-        const ids = new Set();
-
-        leadsConvertidos.forEach(lead => {
-          if (lead.empresa_convertida && !ids.has(lead.empresa_convertida._id)) {
-            ids.add(lead.empresa_convertida._id);
-            empresasUnicas.push({
-              _id: lead.empresa_convertida._id,
-              nombre_comercial: lead.empresa_convertida.nombre_comercial
-            });
-          }
-        });
-
-        setEmpresas(empresasUnicas);
+        const response = await axiosInstance.get("/empresas");
+        setEmpresas(response.data);
       } catch (error) {
         console.error("Error al cargar empresas:", error);
         setEmpresas([]);
