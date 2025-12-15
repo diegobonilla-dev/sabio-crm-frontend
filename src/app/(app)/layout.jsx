@@ -82,11 +82,14 @@ export default function ProtectedLayout({ children }) {
               />
             </CollapsibleTrigger>
             <CollapsibleContent className="bg-gray-50">
+              <Link
+                href="/fincas"
+                className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors block"
+              >
+                Fincas
+              </Link>
               <div className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
                 Diagnósticos
-              </div>
-              <div className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
-                Nuevos Clientes
               </div>
             </CollapsibleContent>
           </Collapsible>
@@ -146,17 +149,18 @@ export default function ProtectedLayout({ children }) {
               />
             </CollapsibleTrigger>
             <CollapsibleContent className="bg-gray-50">
+              <Link
+                href="/fincas"
+                className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors block"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Fincas
+              </Link>
               <div
                 className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Diagnósticos
-              </div>
-              <div
-                className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Nuevos Clientes
               </div>
             </CollapsibleContent>
           </Collapsible>
