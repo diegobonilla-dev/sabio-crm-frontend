@@ -64,9 +64,12 @@ export default function ProtectedLayout({ children }) {
           <div className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
             Dashboard
           </div>
-          <div className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
+          <Link
+            href="/crm"
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors block"
+          >
             CRM
-          </div>
+          </Link>
 
           {/* Fincas con Desplegable */}
           <Collapsible open={fincasOpen} onOpenChange={setFincasOpen}>
@@ -124,12 +127,13 @@ export default function ProtectedLayout({ children }) {
           >
             Dashboard
           </div>
-          <div
-            className="px-6 py-3 text-gray-700 active:bg-gray-100 cursor-pointer transition-colors"
+          <Link
+            href="/crm"
+            className="px-6 py-3 text-gray-700 active:bg-gray-100 cursor-pointer transition-colors block"
             onClick={() => setMobileMenuOpen(false)}
           >
             CRM
-          </div>
+          </Link>
 
           {/* Fincas con Desplegable - Mobile */}
           <Collapsible open={fincasOpen} onOpenChange={setFincasOpen}>
