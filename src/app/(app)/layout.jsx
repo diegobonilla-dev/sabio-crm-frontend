@@ -3,11 +3,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserCog } from "lucide-react";
+import { UserCog, ChevronDown } from "lucide-react";
 import useAuthStore from "@/app/lib/store";
 import MobileMenu from "@/components/layout/MobileMenu";
 import MobileDrawer from "@/components/layout/MobileDrawer";
 import BottomNav from "@/components/layout/BottomNav";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export default function ProtectedLayout({ children }) {
   const router = useRouter();
@@ -17,6 +22,7 @@ export default function ProtectedLayout({ children }) {
   const user = useAuthStore((state) => state.user);
   const [isReady, setIsReady] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [fincasOpen, setFincasOpen] = useState(false);
 
   // Verificar si el usuario es admin
   const isAdmin = user?.role === "sabio_admin";
@@ -60,9 +66,27 @@ export default function ProtectedLayout({ children }) {
           <div className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
             CRM
           </div>
-          <div className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
-            Fincas
-          </div>
+
+          {/* Fincas con Desplegable */}
+          <Collapsible open={fincasOpen} onOpenChange={setFincasOpen}>
+            <CollapsibleTrigger className="w-full px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors flex items-center justify-between">
+              <span>Fincas</span>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${
+                  fincasOpen ? "transform rotate-180" : ""
+                }`}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="bg-gray-50">
+              <div className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
+                Diagnósticos
+              </div>
+              <div className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
+                Nuevos Clientes
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
           <div className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
             Admin
           </div>
@@ -96,12 +120,33 @@ export default function ProtectedLayout({ children }) {
           >
             CRM
           </div>
-          <div
-            className="px-6 py-3 text-gray-700 active:bg-gray-100 cursor-pointer transition-colors"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Fincas
-          </div>
+
+          {/* Fincas con Desplegable - Mobile */}
+          <Collapsible open={fincasOpen} onOpenChange={setFincasOpen}>
+            <CollapsibleTrigger className="w-full px-6 py-3 text-gray-700 active:bg-gray-100 cursor-pointer transition-colors flex items-center justify-between">
+              <span>Fincas</span>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${
+                  fincasOpen ? "transform rotate-180" : ""
+                }`}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="bg-gray-50">
+              <div
+                className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Diagnósticos
+              </div>
+              <div
+                className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Nuevos Clientes
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
           <div
             className="px-6 py-3 text-gray-700 active:bg-gray-100 cursor-pointer transition-colors"
             onClick={() => setMobileMenuOpen(false)}
