@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserCog, ChevronDown } from "lucide-react";
+import { UserCog, ChevronDown, Building } from "lucide-react";
 import useAuthStore from "@/app/lib/store";
 import MobileMenu from "@/components/layout/MobileMenu";
 import MobileDrawer from "@/components/layout/MobileDrawer";
@@ -24,8 +24,9 @@ export default function ProtectedLayout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fincasOpen, setFincasOpen] = useState(false);
 
-  // Verificar si el usuario es admin
+  // Verificar si el usuario es admin o vendedor
   const isAdmin = user?.role === "sabio_admin";
+  const isAdminOrVendedor = user?.role === "sabio_admin" || user?.role === "sabio_vendedor";
 
   useEffect(() => {
     if (hasHydrated) {
@@ -99,6 +100,15 @@ export default function ProtectedLayout({ children }) {
               Usuarios
             </Link>
           )}
+          {isAdminOrVendedor && (
+            <Link
+              href="/admin/corporativos"
+              className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors flex items-center gap-2"
+            >
+              <Building className="h-4 w-4" />
+              Corporativos
+            </Link>
+          )}
         </nav>
       </aside>
 
@@ -161,6 +171,16 @@ export default function ProtectedLayout({ children }) {
             >
               <UserCog className="h-4 w-4" />
               Usuarios
+            </Link>
+          )}
+          {isAdminOrVendedor && (
+            <Link
+              href="/admin/corporativos"
+              className="px-6 py-3 text-gray-700 active:bg-gray-100 cursor-pointer transition-colors flex items-center gap-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Building className="h-4 w-4" />
+              Corporativos
             </Link>
           )}
         </nav>
