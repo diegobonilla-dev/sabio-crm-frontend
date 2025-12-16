@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Check } from "lucide-react";
 import { useFinca } from "@/hooks/fincas/useFincas";
 import { useDiagnosticoDraft } from "@/hooks/diagnosticos/useDiagnosticoDraft";
 import { useDiagnosticoMutations } from "@/hooks/diagnosticos/useDiagnosticoMutations";
@@ -12,6 +13,19 @@ import { useDiagnosticoMutations } from "@/hooks/diagnosticos/useDiagnosticoMuta
 // Import step components
 import Step1InformacionGeneral from "./steps/Step1InformacionGeneral";
 // TODO: Import other steps when created
+
+const STEPS_CONFIG = [
+  { id: 1, title: "Información General", fraction: "1/10" },
+  { id: 2, title: "Sistema Productivo", fraction: "2/10" },
+  { id: 3, title: "Manejo de Pastoreo", fraction: "3/10" },
+  { id: 4, title: "Fertilización", fraction: "4/10" },
+  { id: 5, title: "Evaluación por Lote", fraction: "5/10" },
+  { id: 6, title: "Indicadores P4G", fraction: "6/10" },
+  { id: 7, title: "Sostenibilidad", fraction: "7/10" },
+  { id: 8, title: "Aspectos Económicos", fraction: "8/10" },
+  { id: 9, title: "Observaciones", fraction: "9/10" },
+  { id: 10, title: "Validación y Cierre", fraction: "10/10" },
+];
 
 const TOTAL_STEPS = 10;
 
@@ -114,53 +128,139 @@ export default function DiagnosticoWizard() {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <Card className="max-w-4xl mx-auto p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">
-            Nuevo Diagnóstico - {tipoDiagnostico}
-          </h1>
-          <p className="text-gray-600">
-            Finca: {finca?.nombre || "Cargando..."}
-          </p>
-        </div>
-
-        {/* Progress */}
-        <div className="mb-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-sm text-gray-600">Paso {currentStep} de {TOTAL_STEPS}</span>
-            <span className="text-sm text-gray-600">{Math.round((currentStep / TOTAL_STEPS) * 100)}%</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header con Progreso */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Diagnóstico</h1>
+              <p className="text-sm text-gray-600">
+                {finca?.nombre || "Cargando..."}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                Guardar Borrador
+              </Button>
+              <Button variant="outline" size="sm">
+                Generar PDF
+              </Button>
+              <Button size="sm">
+                Enviar para Firma
+              </Button>
+            </div>
           </div>
-          <Progress value={(currentStep / TOTAL_STEPS) * 100} />
-        </div>
 
-        {/* Step Content */}
-        <div className="min-h-[400px]">
-          {renderStep()}
+          {/* Progress Bar */}
+          <div>
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">
+                Completado
+              </span>
+              <span className="text-sm font-medium text-gray-700">
+                {Math.round((currentStep / TOTAL_STEPS) * 100)}%
+              </span>
+            </div>
+            <Progress value={(currentStep / TOTAL_STEPS) * 100} className="h-2" />
+          </div>
         </div>
+      </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between mt-6 pt-6 border-t">
-          <Button
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStep === 1}
-          >
-            Anterior
-          </Button>
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-6">
+        <div className="flex gap-6">
+          {/* Sidebar - Lista de Pasos */}
+          <Card className="w-80 flex-shrink-0 p-4 h-fit">
+            <h2 className="font-semibold text-gray-900 mb-4">Progreso del Diagnóstico</h2>
+            <div className="space-y-1">
+              {STEPS_CONFIG.map((step) => {
+                const isCompleted = step.id < currentStep;
+                const isCurrent = step.id === currentStep;
 
-          {currentStep < TOTAL_STEPS ? (
-            <Button onClick={handleNext}>
-              Siguiente
-            </Button>
-          ) : (
-            <Button onClick={handleSubmit} disabled={createDiagnostico.isPending}>
-              {createDiagnostico.isPending ? "Guardando..." : "Finalizar"}
-            </Button>
-          )}
+                return (
+                  <div
+                    key={step.id}
+                    className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
+                      isCurrent
+                        ? "bg-green-50 border border-green-200"
+                        : isCompleted
+                        ? "bg-gray-50"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <div
+                      className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                        isCompleted
+                          ? "bg-green-500 text-white"
+                          : isCurrent
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-600"
+                      }`}
+                    >
+                      {isCompleted ? <Check className="h-4 w-4" /> : step.id}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`text-sm font-medium truncate ${
+                          isCurrent ? "text-green-700" : "text-gray-700"
+                        }`}
+                      >
+                        {step.title}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-500">{step.fraction}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Recordatorio */}
+            <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs">
+                  i
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-blue-900">Recordatorio</p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Guarda tu progreso frecuentemente. Los datos se almacenan automáticamente cada 5 minutos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Content Area */}
+          <Card className="flex-1 p-6">
+            {/* Step Content */}
+            <div className="min-h-[500px]">
+              {renderStep()}
+            </div>
+
+            {/* Navigation */}
+            <div className="flex justify-between mt-8 pt-6 border-t">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 1}
+              >
+                Anterior
+              </Button>
+
+              {currentStep < TOTAL_STEPS ? (
+                <Button onClick={handleNext}>
+                  Siguiente
+                </Button>
+              ) : (
+                <Button onClick={handleSubmit} disabled={createDiagnostico.isPending}>
+                  {createDiagnostico.isPending ? "Guardando..." : "Finalizar"}
+                </Button>
+              )}
+            </div>
+          </Card>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
