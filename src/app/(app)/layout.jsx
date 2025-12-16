@@ -88,9 +88,12 @@ export default function ProtectedLayout({ children }) {
               >
                 Fincas
               </Link>
-              <div className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
+              <Link
+                href="/fincas/diagnosticos"
+                className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors block"
+              >
                 Diagnósticos
-              </div>
+              </Link>
             </CollapsibleContent>
           </Collapsible>
 
@@ -156,12 +159,13 @@ export default function ProtectedLayout({ children }) {
               >
                 Fincas
               </Link>
-              <div
-                className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors"
+              <Link
+                href="/fincas/diagnosticos"
+                className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors block"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Diagnósticos
-              </div>
+              </Link>
             </CollapsibleContent>
           </Collapsible>
 
