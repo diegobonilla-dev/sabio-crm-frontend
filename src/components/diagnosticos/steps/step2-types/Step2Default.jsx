@@ -1,6 +1,6 @@
 "use client";
 
-export default function Step2Default({ data, finca, onChange }) {
+export default function Step2Default({ finca }) {
   return (
     <div className="space-y-6">
       <div>

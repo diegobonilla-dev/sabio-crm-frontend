@@ -47,9 +47,40 @@ export const informacionGeneralSchema = z.object({
 // PASO 2: SISTEMA PRODUCTIVO (Por tipo de finca)
 // ============================================
 
-// Schema para Ganadería (expandiremos después con lotes)
+// Schema para suplemento individual
+const suplementoSchema = z.object({
+  tipo: z.string().min(1, "El tipo de suplemento es requerido"),
+  kgDia: z.coerce.number().min(0, "Debe ser un valor positivo"),
+  precioKg: z.coerce.number().min(0, "Debe ser un valor positivo")
+});
+
+// Schema para materia seca individual
+const materiaSecaSchema = z.object({
+  tipo: z.string().min(1, "El tipo de materia seca es requerido"),
+  porcentaje: z.coerce.number().min(0, "Debe ser un valor positivo").max(100, "No puede superar 100%")
+});
+
+// Schema para un lote individual
+const loteGanaderiaSchema = z.object({
+  nombre_lote: z.string().min(1, "El nombre del lote es requerido"),
+  total_litros: z.coerce.number().min(0).optional(),
+  periodo_litros: z.enum(['litros_dia', 'litros_mes']).optional(),
+  total_litros_305_dias: z.coerce.number().min(0).optional(),
+  numero_vacas_ordeno: z.coerce.number().min(0).optional(),
+  precio_venta_leche: z.coerce.number().min(0).optional(),
+  concentrado_total_kg_dia: z.coerce.number().min(0).optional(),
+  precio_concentrado_kg: z.coerce.number().min(0).optional(),
+  usa_suplemento: z.boolean().optional(),
+  suplementos: z.array(suplementoSchema).optional(),
+  materia_seca: z.array(materiaSecaSchema).optional(),
+  raza_predominante: z.string().optional(),
+  peso_promedio_vaca: z.coerce.number().min(0).optional()
+});
+
+// Schema principal para Ganadería (Paso 2)
 export const sistemaProductivoGanaderiaSchema = z.object({
-  // Por ahora vacío, lo llenaremos cuando implementes el formulario completo
+  cuantos_lotes_alta_produccion: z.coerce.number().min(0).optional(),
+  lotes: z.array(loteGanaderiaSchema).optional()
 });
 
 // Schemas placeholder para otros tipos (expandir según necesidad)

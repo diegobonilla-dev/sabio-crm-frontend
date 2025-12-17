@@ -1,6 +1,6 @@
 "use client";
 
-export default function Step2Flores({ data, finca, onChange }) {
+export default function Step2Flores({ finca }) {
   return (
     <div className="space-y-6">
       <div>

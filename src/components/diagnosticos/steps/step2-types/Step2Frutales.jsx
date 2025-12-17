@@ -1,6 +1,6 @@
 "use client";
 
-export default function Step2Frutales({ data, finca, onChange }) {
+export default function Step2Frutales({ finca }) {
   return (
     <div className="space-y-6">
       <div>
