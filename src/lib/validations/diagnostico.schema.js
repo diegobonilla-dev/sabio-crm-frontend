@@ -83,13 +83,30 @@ export const sistemaProductivoGanaderiaSchema = z.object({
   lotes: z.array(loteGanaderiaSchema).optional()
 });
 
+// Schema para un lote frutal individual
+const loteFrutalSchema = z.object({
+  nombre_lote: z.string().min(1, "El nombre del lote es requerido"),
+  arboles_por_ha: z.coerce.number().min(0).optional(),
+  edad_siembra: z.coerce.number().min(0).optional(),
+  edad_produccion: z.coerce.number().min(0).optional(),
+  notas_edad: z.string().optional(),
+  rendimiento_ha: z.coerce.number().min(0).optional(),
+  periodo_rendimiento: z.enum(['Anual', 'Por ciclo', 'Por cosecha', 'Traviesa']).optional(),
+  produccion_promedio_arbol: z.coerce.number().min(0).optional(),
+  porcentaje_exportacion: z.coerce.number().min(0).max(100).optional(),
+  tasa_descarte: z.coerce.number().min(0).max(100).optional(),
+  tipo_riego: z.enum(['Gravedad', 'Aspersores', 'Goteo', 'Manguera']).optional(),
+  precio_venta_kg: z.coerce.number().min(0).optional()
+});
+
 // Schemas placeholder para otros tipos (expandir según necesidad)
 export const sistemaProductivoFloresSchema = z.object({
   // TODO: Definir campos específicos para flores
 });
 
 export const sistemaProductivoFrutalesSchema = z.object({
-  // TODO: Definir campos específicos para frutales
+  cuantos_lotes_productivos: z.coerce.number().min(0).optional(),
+  lotes: z.array(loteFrutalSchema).optional()
 });
 
 export const sistemaProductivoCafeSchema = z.object({
