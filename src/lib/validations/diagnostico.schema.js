@@ -1,22 +1,43 @@
 import { z } from "zod";
 
 export const informacionGeneralSchema = z.object({
+  // Fecha y hora
   fecha_visita: z.string().min(1, "La fecha es requerida"),
   hora_inicio: z.string().min(1, "La hora es requerida"),
+
+  // Técnico y cliente principal
   tecnico_responsable: z.string().optional(),
   nombre_cliente: z.string().optional(),
   telefono_cliente: z.string().optional(),
+
+  // Quien atiende la visita (NUEVO)
+  nombre_quien_atiende: z.string().optional(),
+  telefono_quien_atiende: z.string().optional(),
+
+  // Empresa y documentación
   empresa: z.string().optional(),
   nit: z.string().optional(),
+  caja_compensacion: z.string().optional(), // NUEVO
+
+  // Compradores/Corporativos (NUEVO) - Se guardará como array en backend
+  compradores_corporativos: z.string().optional(), // String separado por comas en UI
+
+  // Finca
   nombre_finca: z.string().optional(),
   vereda: z.string().optional(),
   municipio: z.string().optional(),
   departamento: z.string().optional(),
   coordenadas_gps: z.string().optional(),
+
+  // Áreas
   area_total: z.coerce.number().optional(),
-  area_dedicada: z.coerce.number().optional(),
+  area_dedicada: z.coerce.number().optional(), // Label dinámico según tipo de finca
   area_reserva: z.coerce.number().optional(),
+
+  // Divisiones (label dinámico: "potreros", "bloques", etc.)
   numero_divisiones: z.coerce.number().optional(),
+
+  // Información adicional
   tiene_mapas: z.boolean().optional(),
   tendencia_climatica: z.string().optional(),
   tiene_registros: z.boolean().optional(),

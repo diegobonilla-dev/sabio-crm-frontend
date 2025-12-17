@@ -6,11 +6,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { informacionGeneralSchema } from "@/lib/validations/diagnostico.schema";
+import { getNomenclatura } from "@/lib/constants/nomenclatura";
 import useAuthStore from "@/app/lib/store";
 
 export default function Step1InformacionGeneral({ data, finca, onChange }) {
   const user = useAuthStore((state) => state.user);
+
+  // Obtener nomenclatura dinámica según tipo de finca
+  const nomenclatura = getNomenclatura(finca?.tipo_produccion);
 
   const {
     register,
@@ -59,7 +64,16 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
   const formValues = watch();
   useEffect(() => {
     const timeout = setTimeout(() => {
-      onChange({ informacion_general: formValues });
+      // Convertir compradores_corporativos de string a array antes de guardar
+      const dataToSave = { ...formValues };
+      if (dataToSave.compradores_corporativos && typeof dataToSave.compradores_corporativos === 'string') {
+        dataToSave.compradores_corporativos = dataToSave.compradores_corporativos
+          .split(',')
+          .map(item => item.trim())
+          .filter(item => item.length > 0);
+      }
+
+      onChange({ informacion_general: dataToSave });
     }, 300); // Debounce de 300ms
 
     return () => clearTimeout(timeout);
@@ -121,12 +135,32 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
           />
         </div>
 
-        {/* Teléfono */}
+        {/* Teléfono cliente */}
         <div>
-          <Label htmlFor="telefono_cliente">Teléfono/Celular</Label>
+          <Label htmlFor="telefono_cliente">Teléfono/Celular del cliente</Label>
           <Input
             id="telefono_cliente"
             {...register("telefono_cliente")}
+          />
+        </div>
+
+        {/* NUEVO: Nombre quien atiende */}
+        <div>
+          <Label htmlFor="nombre_quien_atiende">Nombre de quien atiende la visita</Label>
+          <Input
+            id="nombre_quien_atiende"
+            placeholder="Ej: Mayordomo, Capataz, etc."
+            {...register("nombre_quien_atiende")}
+          />
+        </div>
+
+        {/* NUEVO: Teléfono quien atiende */}
+        <div>
+          <Label htmlFor="telefono_quien_atiende">Teléfono de quien atiende</Label>
+          <Input
+            id="telefono_quien_atiende"
+            placeholder="300 123 4567"
+            {...register("telefono_quien_atiende")}
           />
         </div>
 
@@ -152,6 +186,16 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
           />
         </div>
 
+        {/* NUEVO: Caja de compensación */}
+        <div>
+          <Label htmlFor="caja_compensacion">Caja de compensación</Label>
+          <Input
+            id="caja_compensacion"
+            placeholder="Ej: Compensar, Cafam, etc."
+            {...register("caja_compensacion")}
+          />
+        </div>
+
         {/* Nombre finca (readonly) */}
         <div>
           <Label htmlFor="nombre_finca">Nombre de la finca</Label>
@@ -160,6 +204,20 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
             {...register("nombre_finca")}
             disabled
             className="bg-gray-50"
+          />
+        </div>
+
+        {/* NUEVO: Compradores/Corporativos - span 1 columna */}
+        <div>
+          <Label htmlFor="compradores_corporativos">
+            Compradores/Corporativos
+            <span className="text-xs text-gray-500 ml-2">(separados por comas)</span>
+          </Label>
+          <Textarea
+            id="compradores_corporativos"
+            placeholder="Ej: Alpina, Colanta, Nestlé"
+            rows={2}
+            {...register("compradores_corporativos")}
           />
         </div>
 
@@ -202,9 +260,9 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
           />
         </div>
 
-        {/* Área dedicada a lechería */}
+        {/* Área dedicada - LABEL DINÁMICO */}
         <div>
-          <Label htmlFor="area_dedicada">Área dedicada a lechería (ha)</Label>
+          <Label htmlFor="area_dedicada">{nomenclatura.area_dedicada}</Label>
           <Input
             id="area_dedicada"
             type="number"
@@ -224,9 +282,9 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
           />
         </div>
 
-        {/* Número potreros */}
+        {/* Número divisiones - LABEL DINÁMICO */}
         <div>
-          <Label htmlFor="numero_divisiones">Número total de potreros</Label>
+          <Label htmlFor="numero_divisiones">{nomenclatura.division_primaria.label}</Label>
           <Input
             id="numero_divisiones"
             type="number"
