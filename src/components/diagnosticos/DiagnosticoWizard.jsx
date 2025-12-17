@@ -12,6 +12,7 @@ import { useDiagnosticoMutations } from "@/hooks/diagnosticos/useDiagnosticoMuta
 
 // Import step components
 import Step1InformacionGeneral from "./steps/Step1InformacionGeneral";
+import Step2 from "./steps/Step2";
 // TODO: Import other steps when created
 
 const STEPS_CONFIG = [
@@ -95,6 +96,14 @@ export default function DiagnosticoWizard() {
       case 1:
         return (
           <Step1InformacionGeneral
+            data={formData}
+            finca={finca}
+            onChange={handleStepChange}
+          />
+        );
+      case 2:
+        return (
+          <Step2
             data={formData}
             finca={finca}
             onChange={handleStepChange}

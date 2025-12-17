@@ -22,6 +22,36 @@ export const informacionGeneralSchema = z.object({
   tiene_registros: z.boolean().optional(),
 });
 
+// ============================================
+// PASO 2: SISTEMA PRODUCTIVO (Por tipo de finca)
+// ============================================
+
+// Schema para Ganadería (expandiremos después con lotes)
+export const sistemaProductivoGanaderiaSchema = z.object({
+  // Por ahora vacío, lo llenaremos cuando implementes el formulario completo
+});
+
+// Schemas placeholder para otros tipos (expandir según necesidad)
+export const sistemaProductivoFloresSchema = z.object({
+  // TODO: Definir campos específicos para flores
+});
+
+export const sistemaProductivoFrutalesSchema = z.object({
+  // TODO: Definir campos específicos para frutales
+});
+
+export const sistemaProductivoCafeSchema = z.object({
+  // TODO: Definir campos específicos para café
+});
+
+export const sistemaProductivoAguacateSchema = z.object({
+  // TODO: Definir campos específicos para aguacate
+});
+
+// ============================================
+// SCHEMA PRINCIPAL DE DIAGNÓSTICO
+// ============================================
+
 export const createDiagnosticoSchema = z.object({
   finca: z.string().min(1, "La finca es requerida"),
   tipo_diagnostico: z.enum(['Ganaderia', 'Flores', 'Frutales', 'Cafe', 'Aguacate']),
