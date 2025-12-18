@@ -141,6 +141,89 @@ export const sistemaProductivoAguacateSchema = z.object({
 });
 
 // ============================================
+// PASO 3: FERTILIZACIÓN Y FUMIGACIÓN
+// ============================================
+
+// Schema para producto químico individual
+const productoQuimicoSchema = z.object({
+  nombre_producto: z.string().min(1, "El nombre del producto es requerido"),
+  formula_npk: z.string().optional(),
+  bultos_por_ha: z.coerce.number().min(0, "Debe ser un valor positivo").optional(),
+  periodo: z.enum(['rotacion', 'ciclo', 'anual']).optional(),
+  costo_por_bulto: z.coerce.number().min(0, "Debe ser un valor positivo").optional()
+});
+
+// Schema para insecticida individual
+const insecticidaSchema = z.object({
+  nombre_comercial: z.string().min(1, "El nombre comercial es requerido"),
+  ingrediente_activo: z.string().optional(),
+  dosis: z.coerce.number().min(0, "Debe ser un valor positivo").optional(),
+  unidad_dosis: z.enum(['ml/200L', 'cc/L']).optional()
+});
+
+// Schema para sección general de fertilización y fumigación
+const fertilizacionFumigacionGeneralSchema = z.object({
+  // Fertilización química
+  usa_fertilizacion_quimica: z.boolean().optional(),
+  costo_ultimo_ano_fertilizacion: z.coerce.number().min(0).optional(),
+  costo_fertilizacion_es_aproximado: z.boolean().optional(),
+  productos_quimicos: z.array(productoQuimicoSchema).optional(),
+
+  // Abono orgánico
+  usa_abono_organico: z.boolean().optional(),
+  tipo_abono_organico: z.enum(['CASERO', 'COMERCIAL']).optional(),
+  costo_abono_organico: z.coerce.number().min(0).optional(),
+  unidad_costo_abono: z.enum(['bulto', 'kg']).optional(),
+
+  // Fertilización foliar
+  usa_fertilizante_foliar: z.boolean().optional(),
+  tipos_aplicacion: z.array(z.string()).optional(), // ['Granular', 'Liquido', 'Foliar']
+
+  // Fumigación
+  usa_fumigacion: z.boolean().optional(),
+  sistemas_fumigacion: z.array(z.string()).optional(), // ['Canecas con gravedad', etc.]
+  otro_sistema_fumigacion: z.string().optional(),
+  costo_anual_venenos: z.coerce.number().min(0).optional(),
+  costo_venenos_es_aproximado: z.boolean().optional(),
+
+  // Productos de fumigación
+  insecticidas: z.array(insecticidaSchema).optional(),
+  fungicida: z.object({
+    nombre_comercial: z.string().optional(),
+    ingrediente_activo: z.string().optional(),
+    dosis: z.coerce.number().min(0).optional()
+  }).optional(),
+  coadyuvante: z.object({
+    nombre_comercial: z.string().optional(),
+    ingrediente_activo: z.string().optional(),
+    dosis: z.coerce.number().min(0).optional()
+  }).optional(),
+
+  // Rotación
+  tiene_plan_rotacion: z.boolean().optional(),
+  rotacion_dias: z.coerce.number().min(0).optional()
+});
+
+// Schema para lote/bloque diferenciado (manejo específico)
+const loteDiferenciadoSchema = z.object({
+  nombre_lote: z.string().min(1, "El nombre es requerido"),
+  usa_fertilizacion_quimica: z.boolean().optional(),
+  productos_quimicos: z.array(productoQuimicoSchema).optional(),
+  usa_abono_organico: z.boolean().optional(),
+  usa_fumigacion: z.boolean().optional(),
+  insecticidas: z.array(insecticidaSchema).optional(),
+  observaciones: z.string().optional()
+});
+
+// Schema principal para Fertilización y Fumigación (Paso 3)
+export const fertilizacionFumigacionSchema = z.object({
+  general: fertilizacionFumigacionGeneralSchema.optional(),
+  tiene_manejo_diferencial: z.boolean().optional(),
+  cuantos_lotes_diferenciados: z.coerce.number().min(0).optional(),
+  lotes_diferenciados: z.array(loteDiferenciadoSchema).optional()
+});
+
+// ============================================
 // SCHEMA PRINCIPAL DE DIAGNÓSTICO
 // ============================================
 

@@ -13,13 +13,14 @@ import { useDiagnosticoMutations } from "@/hooks/diagnosticos/useDiagnosticoMuta
 // Import step components
 import Step1InformacionGeneral from "./steps/Step1InformacionGeneral";
 import Step2 from "./steps/Step2";
+import Step3 from "./steps/Step3";
 // TODO: Import other steps when created
 
 const STEPS_CONFIG = [
   { id: 1, title: "Información General", fraction: "1/10" },
   { id: 2, title: "Sistema Productivo", fraction: "2/10" },
-  { id: 3, title: "Manejo de Pastoreo", fraction: "3/10" },
-  { id: 4, title: "Fertilización", fraction: "4/10" },
+  { id: 3, title: "Fertilización y Fumigación", fraction: "3/10" },
+  { id: 4, title: "Manejo de Pastoreo", fraction: "4/10" },
   { id: 5, title: "Evaluación por Lote", fraction: "5/10" },
   { id: 6, title: "Indicadores P4G", fraction: "6/10" },
   { id: 7, title: "Sostenibilidad", fraction: "7/10" },
@@ -104,6 +105,14 @@ export default function DiagnosticoWizard() {
       case 2:
         return (
           <Step2
+            data={formData}
+            finca={finca}
+            onChange={handleStepChange}
+          />
+        );
+      case 3:
+        return (
+          <Step3
             data={formData}
             finca={finca}
             onChange={handleStepChange}
