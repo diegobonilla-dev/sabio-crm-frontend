@@ -99,9 +99,32 @@ const loteFrutalSchema = z.object({
   precio_venta_kg: z.coerce.number().min(0).optional()
 });
 
+// Schema para nutriente individual (Flores)
+const nutrienteSchema = z.object({
+  nombre: z.string().min(1, "El nombre del nutriente es requerido"),
+  cantidad: z.coerce.number().min(0, "Debe ser un valor positivo"),
+  valor: z.coerce.number().min(0, "Debe ser un valor positivo")
+});
+
+// Schema para un bloque floral individual
+const bloqueFloralSchema = z.object({
+  nombre_bloque: z.string().min(1, "El nombre del bloque es requerido"),
+  tallos_cosechados: z.coerce.number().min(0).optional(),
+  porcentaje_exportacion: z.coerce.number().min(0).max(100).optional(),
+  tiempo_ciclo_cosecha: z.coerce.number().min(0).optional(),
+  tasa_descarte: z.coerce.number().min(0).max(100).optional(),
+  nutrientes: z.array(nutrienteSchema).optional(),
+  precio_venta_kg: z.coerce.number().min(0).optional(),
+  costo_por_tallo: z.coerce.number().min(0).optional(),
+  ingreso_neto_m2: z.coerce.number().min(0).optional(),
+  porcentaje_costos_variables: z.coerce.number().min(0).max(100).optional(),
+  productividad_mano_obra: z.coerce.number().min(0).optional()
+});
+
 // Schemas placeholder para otros tipos (expandir según necesidad)
 export const sistemaProductivoFloresSchema = z.object({
-  // TODO: Definir campos específicos para flores
+  cuantos_bloques_productivos: z.coerce.number().min(0).optional(),
+  bloques: z.array(bloqueFloralSchema).optional()
 });
 
 export const sistemaProductivoFrutalesSchema = z.object({
