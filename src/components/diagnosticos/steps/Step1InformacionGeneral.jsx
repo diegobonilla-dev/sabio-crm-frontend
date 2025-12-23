@@ -77,6 +77,7 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
     }, 300); // Debounce de 300ms
 
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues]); // Removemos onChange de las dependencias
 
   return (

@@ -45,6 +45,7 @@ export default function Step2Ganaderia({ data, onChange }) {
       });
     }, 300);
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues]);
 
   // Agregar nuevo lote

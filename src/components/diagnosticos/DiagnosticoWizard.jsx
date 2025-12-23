@@ -42,7 +42,7 @@ export default function DiagnosticoWizard() {
 
   const { data: finca } = useFinca(fincaId);
   const { saveDraft, loadDraft, clearDraft } = useDiagnosticoDraft(fincaId);
-  const { createDiagnostico, updateDiagnostico } = useDiagnosticoMutations();
+  const { createDiagnostico/* , updateDiagnostico  */} = useDiagnosticoMutations();
 
   // Load draft on mount
   useEffect(() => {

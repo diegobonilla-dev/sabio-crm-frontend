@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {

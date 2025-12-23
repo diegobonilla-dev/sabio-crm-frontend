@@ -78,7 +78,7 @@ export default function ConvertirLeadModal({ open, onOpenChange, lead }) {
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            Esto creará una nueva <strong>Empresa</strong> y un <strong>Usuario</strong> con rol "Cliente Owner" para {lead.contacto_nombre}.
+            Esto creará una nueva <strong>Empresa</strong> y un <strong>Usuario</strong> con rol &quot;Cliente Owner&quot; para {lead.contacto_nombre}.
           </AlertDescription>
         </Alert>
 

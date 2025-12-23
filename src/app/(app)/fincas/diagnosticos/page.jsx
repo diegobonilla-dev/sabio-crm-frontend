@@ -24,6 +24,7 @@ export default function DiagnosticosPage() {
 
   const handleEdit = (diagnostico) => {
     // TODO: Navigate to edit wizard
+    console.log(diagnostico)
   };
 
   const handleDelete = (diagnostico) => {
