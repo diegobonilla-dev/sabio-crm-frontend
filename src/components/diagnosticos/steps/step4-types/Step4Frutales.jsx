@@ -34,21 +34,17 @@ export default function Step4Frutales({ data, onChange }) {
     resolver: zodResolver(manejoCultivoFrutalesSchema),
     defaultValues: data?.datos_frutales?.manejo_cultivo || {
       general: {
-        plateo_deshierbe_guadana: false,
-        plateo_deshierbe_manual: false,
-        plateo_deshierbe_herbicida: false,
-        plateo_deshierbe_no_se_hace: false,
+        metodo_plateo: [],
+        deshierbe: [],
         frecuencia_plateo: 'Mensual',
         especies_predominantes: [],
         arboles_resembrados: 0,
-        tipo_podas_sanitaria: false,
-        tipo_podas_formacion: false,
-        tipo_podas_produccion: false,
+        tipo_podas: [],
         ultimas_podas_realizadas: '',
-        cantidad_fertilizante_sintetico_gramos: 0,
+        cantidad_fertilizante_sintetico_por_arbol: 0,
         usa_abono_organico: false,
         tipos_abono_organico: '',
-        cantidad_abono_organico_arbol: 0
+        cantidad_abono_organico_por_arbol: 0
       },
       cuantos_lotes_evaluados: 0,
       lotes_evaluados: []
@@ -157,9 +153,9 @@ export default function Step4Frutales({ data, onChange }) {
         <div className="space-y-4 p-4 bg-white rounded-lg border">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-blue-900">Especies Predominantes</h4>
+              <h4 className="font-medium text-blue-900">Especies Predominantes de Cultivo</h4>
               <p className="text-xs text-muted-foreground">
-                Inventario rápido visual desde vehículo (máximo 4)
+                💡 Variedades de frutal cultivadas en la finca (máximo 4)
               </p>
             </div>
             <Button
@@ -180,7 +176,7 @@ export default function Step4Frutales({ data, onChange }) {
                 <Label>Especie {index + 1}</Label>
                 <Input
                   {...register(`general.especies_predominantes.${index}.especie`)}
-                  placeholder="Ej: Kikuyo, Coquito, etc."
+                  placeholder="Ej: Hass, Lorena, Choquette, etc."
                 />
               </div>
               <Button
@@ -273,49 +269,64 @@ export default function Step4Frutales({ data, onChange }) {
  * Sub-componente: Plateo y Deshierbe
  */
 function SeccionPlateoYDeshierbe({ watch, setValue }) {
-  const plateoGuadana = watch("general.plateo_deshierbe_guadana");
-  const plateoManual = watch("general.plateo_deshierbe_manual");
-  const plateoHerbicida = watch("general.plateo_deshierbe_herbicida");
-  const plateoNoSeHace = watch("general.plateo_deshierbe_no_se_hace");
+  const metodoPlateo = watch("general.metodo_plateo") || [];
+  const deshierbe = watch("general.deshierbe") || [];
+
+  const handleMetodoPlateoChange = (metodo, checked) => {
+    if (checked) {
+      setValue("general.metodo_plateo", [...metodoPlateo, metodo]);
+    } else {
+      setValue("general.metodo_plateo", metodoPlateo.filter(m => m !== metodo));
+    }
+  };
+
+  const handleDeshierbeChange = (metodo, checked) => {
+    if (checked) {
+      setValue("general.deshierbe", [...deshierbe, metodo]);
+    } else {
+      setValue("general.deshierbe", deshierbe.filter(m => m !== metodo));
+    }
+  };
 
   return (
     <div className="space-y-4 p-4 bg-white rounded-lg border">
-      <h4 className="font-medium text-blue-900">Plateo / Deshierbe</h4>
+      <h4 className="font-medium text-blue-900">Plateo y Deshierbe</h4>
 
-      <div className="space-y-2">
-        <Label>Métodos utilizados (selección múltiple)</Label>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={plateoGuadana}
-              onCheckedChange={(checked) => setValue("general.plateo_deshierbe_guadana", checked)}
-            />
-            <Label>Guadaña</Label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Método de Plateo */}
+        <div className="space-y-2">
+          <Label className="font-semibold">Método de Plateo (múltiple)</Label>
+          <div className="space-y-2">
+            {['Guadaña', 'Manual', 'Herbicida', 'No se hace'].map((metodo) => (
+              <div key={metodo} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={metodoPlateo.includes(metodo)}
+                  onCheckedChange={(checked) => handleMetodoPlateoChange(metodo, checked)}
+                />
+                <Label>{metodo}</Label>
+              </div>
+            ))}
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={plateoManual}
-              onCheckedChange={(checked) => setValue("general.plateo_deshierbe_manual", checked)}
-            />
-            <Label>Manual</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={plateoHerbicida}
-              onCheckedChange={(checked) => setValue("general.plateo_deshierbe_herbicida", checked)}
-            />
-            <Label>Herbicida</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={plateoNoSeHace}
-              onCheckedChange={(checked) => setValue("general.plateo_deshierbe_no_se_hace", checked)}
-            />
-            <Label>No se hace</Label>
+        </div>
+
+        {/* Deshierbe */}
+        <div className="space-y-2">
+          <Label className="font-semibold">Deshierbe (múltiple)</Label>
+          <div className="space-y-2">
+            {['Guadaña', 'Manual', 'Herbicida', 'No se hace'].map((metodo) => (
+              <div key={metodo} className="flex items-center space-x-2">
+                <Checkbox
+                  checked={deshierbe.includes(metodo)}
+                  onCheckedChange={(checked) => handleDeshierbeChange(metodo, checked)}
+                />
+                <Label>{metodo}</Label>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
+      {/* Frecuencia plateo */}
       <div>
         <Label>Frecuencia de plateo</Label>
         <RadioGroup
@@ -349,9 +360,15 @@ function SeccionPlateoYDeshierbe({ watch, setValue }) {
  * Sub-componente: Resiembras y Podas
  */
 function SeccionResiembrasYPodas({ register, watch, setValue }) {
-  const tipoPodaSanitaria = watch("general.tipo_podas_sanitaria");
-  const tipoPodaFormacion = watch("general.tipo_podas_formacion");
-  const tipoPodaProduccion = watch("general.tipo_podas_produccion");
+  const tipoPodas = watch("general.tipo_podas") || [];
+
+  const handleTipoPodaChange = (tipo, checked) => {
+    if (checked) {
+      setValue("general.tipo_podas", [...tipoPodas, tipo]);
+    } else {
+      setValue("general.tipo_podas", tipoPodas.filter(t => t !== tipo));
+    }
+  };
 
   return (
     <div className="space-y-4 p-4 bg-white rounded-lg border">
@@ -368,29 +385,17 @@ function SeccionResiembrasYPodas({ register, watch, setValue }) {
       </div>
 
       <div className="space-y-2">
-        <Label>Tipo de podas (selección múltiple)</Label>
+        <Label>Tipo de podas realizadas (múltiple)</Label>
         <div className="grid grid-cols-3 gap-3">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={tipoPodaSanitaria}
-              onCheckedChange={(checked) => setValue("general.tipo_podas_sanitaria", checked)}
-            />
-            <Label>SANITARIA</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={tipoPodaFormacion}
-              onCheckedChange={(checked) => setValue("general.tipo_podas_formacion", checked)}
-            />
-            <Label>FORMACION</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              checked={tipoPodaProduccion}
-              onCheckedChange={(checked) => setValue("general.tipo_podas_produccion", checked)}
-            />
-            <Label>PRODUCCION</Label>
-          </div>
+          {['SANITARIA', 'FORMACION', 'PRODUCCION'].map((tipo) => (
+            <div key={tipo} className="flex items-center space-x-2">
+              <Checkbox
+                checked={tipoPodas.includes(tipo)}
+                onCheckedChange={(checked) => handleTipoPodaChange(tipo, checked)}
+              />
+              <Label>{tipo}</Label>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -419,7 +424,7 @@ function SeccionFertilizacion({ register, setValue, usaAbonoOrganico }) {
         <Input
           type="number"
           min="0"
-          {...register("general.cantidad_fertilizante_sintetico_gramos")}
+          {...register("general.cantidad_fertilizante_sintetico_por_arbol")}
           placeholder="0"
         />
       </div>
@@ -442,11 +447,11 @@ function SeccionFertilizacion({ register, setValue, usaAbonoOrganico }) {
             />
           </div>
           <div>
-            <Label>Cantidad abono orgánico por árbol</Label>
+            <Label>Cantidad abono orgánico por árbol (gramos)</Label>
             <Input
               type="number"
               min="0"
-              {...register("general.cantidad_abono_organico_arbol")}
+              {...register("general.cantidad_abono_organico_por_arbol")}
               placeholder="0"
             />
           </div>
