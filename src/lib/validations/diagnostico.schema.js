@@ -224,6 +224,120 @@ export const fertilizacionFumigacionSchema = z.object({
 });
 
 // ============================================
+// PASO 4: MANEJO DE PASTOREO Y FORRAJES
+// ============================================
+
+// Schema para especie de pasto
+const especiePastoSchema = z.object({
+  especie: z.string().optional(),
+  orden: z.coerce.number().min(1).max(3)
+});
+
+// Schema para punto de muestreo individual
+const puntoMuestreoSchema = z.object({
+  coordenada_gps: z.string().optional(),
+  pendiente_porcentaje: z.coerce.number().min(0).max(45).optional(),
+  aspecto_pendiente: z.enum(['N', 'S', 'E', 'O', 'NE', 'NO', 'SE', 'SO']).optional(),
+
+  // VESS
+  vess_colchon_pasto: z.coerce.number().min(1).max(3).optional(),
+  vess_suelo: z.coerce.number().min(1).max(5).optional(),
+
+  // Características del suelo
+  textura_predominante: z.enum(['Arenosa', 'Franca', 'Arcillosa']).optional(),
+  color_predominante: z.enum(['Oscuro', 'Claro', 'Rojizo']).optional(),
+  olor_predominante: z.enum(['Orgánico', 'Áspero', 'Ácido', 'Neutro']).optional(),
+
+  // Compactación
+  penetrometro_200psi_cm: z.coerce.number().min(0).max(90).optional(),
+  nivel_compactacion: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+  evidencia_compactacion_superficial: z.boolean().optional(),
+
+  // Condiciones
+  drenaje: z.enum(['Adecuado', 'Deficiente']).optional(),
+  evidencia_erosion: z.boolean().optional(),
+
+  // Salud del pasto
+  puntuacion_salud_pasto: z.coerce.number().min(0).max(3).optional(),
+  especies_no_deseadas_presentes: z.boolean().optional(),
+  nivel_especies_no_deseadas: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+  sintomas_estres: z.array(z.string()).optional(),
+
+  // Biodiversidad
+  lombrices_rojas: z.coerce.number().min(0).optional(),
+  lombrices_grises: z.coerce.number().min(0).optional(),
+  lombrices_blancas: z.coerce.number().min(0).optional(),
+  huevos_lombrices: z.coerce.number().min(0).optional(),
+  tipos_diferentes_huevos: z.coerce.number().min(0).optional(),
+  presencia_micelio_hongos: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
+  raices_activas_visibles: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
+
+  // Fotos (strings por ahora)
+  foto_salud_pasto_calidad: z.string().optional(),
+  foto_salud_pasto_raiz: z.string().optional(),
+  foto_perfil_suelo: z.string().optional(),
+
+  // Observaciones
+  observaciones_punto: z.string().optional()
+});
+
+// Schema para plaga/enfermedad
+const plagaEnfermedadPastoreoSchema = z.object({
+  nombre: z.string(),
+  nivel_dano: z.enum(['sin_dano', 'leve', 'moderado', 'grave'])
+});
+
+// Schema para mediciones de forraje
+const medicionesForraje = z.object({
+  se_realizaron: z.boolean().optional(),
+  motivo_no_realizacion: z.string().optional(),
+  aforo_entrada_kg_ms_m2: z.coerce.number().min(0).optional(),
+  altura_entrada_cm: z.coerce.number().min(0).optional(),
+  hora_muestreo_ms: z.string().optional(),
+  aforo_salida_kg_ms_m2: z.coerce.number().min(0).optional(),
+  altura_salida_cm: z.coerce.number().min(0).optional(),
+  oferta_forraje_verde_kg_vaca_dia: z.coerce.number().min(0).optional(),
+  oferta_area_m2_vaca_dia: z.coerce.number().min(0).optional(),
+  porcentaje_materia_seca: z.coerce.number().min(0).max(100).optional(),
+  grados_brix: z.coerce.number().min(0).optional(),
+  ph_hoja: z.coerce.number().min(0).max(14).optional(),
+  hora_muestreo_brix_ph: z.string().optional()
+});
+
+// Schema para lote evaluado
+const loteEvaluadoPastoreoSchema = z.object({
+  nombre_lote: z.string().min(1, "El nombre del lote es requerido"),
+  area_m2: z.coerce.number().min(0).optional(),
+  topografia: z.enum(['Plano', 'Inclinación leve', 'Inclinación fuerte']).optional(),
+  mediciones_forraje: medicionesForraje.optional(),
+  puntos_muestreo: z.array(puntoMuestreoSchema).max(9, "Máximo 9 puntos de muestreo").optional(),
+  plagas_enfermedades: z.array(plagaEnfermedadPastoreoSchema).optional()
+});
+
+// Schema principal para Manejo de Pastoreo (Paso 4)
+export const manejoPastoreoSchema = z.object({
+  general: z.object({
+    finca_hace_aforo: z.boolean().optional(),
+    metodo_aforo: z.enum([
+      'Platómetro',
+      'Visual',
+      'Corte y peso',
+      'Bastón de aforo',
+      'No se hace en la finca'
+    ]).optional(),
+    tipo_pastoreo: z.enum(['Rotacional', 'Continuo']).optional(),
+    periodo_rotacion_dias: z.coerce.number().min(0).optional(),
+    periodo_ocupacion_dias: z.coerce.number().min(0).optional(),
+    franja_pastoreo_m2: z.coerce.number().min(0).optional(),
+    especies_pasto: z.array(especiePastoSchema).max(3, "Máximo 3 especies").optional(),
+    cobertura_general: z.enum(['Alta', 'Media', 'Baja']).optional(),
+    uniformidad_general: z.enum(['Buena', 'Irregular']).optional()
+  }).optional(),
+  cuantos_lotes_evaluados: z.coerce.number().min(0).optional(),
+  lotes_evaluados: z.array(loteEvaluadoPastoreoSchema).optional()
+});
+
+// ============================================
 // SCHEMA PRINCIPAL DE DIAGNÓSTICO
 // ============================================
 
