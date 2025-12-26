@@ -338,6 +338,122 @@ export const manejoPastoreoSchema = z.object({
 });
 
 // ============================================
+// PASO 4: MANEJO DE CULTIVO (FRUTALES)
+// ============================================
+
+// Schema para especie predominante frutal
+const especiePredomianteFrutalSchema = z.object({
+  especie: z.string().optional(),
+  orden: z.coerce.number().min(1).max(4)
+});
+
+// Schema para punto de muestreo individual (Frutales)
+const puntoMuestreoFrutalSchema = z.object({
+  coordenada_gps: z.string().optional(),
+  pendiente_porcentaje: z.coerce.number().min(0).max(45).optional(),
+  aspecto_pendiente: z.enum(['N', 'S', 'E', 'O', 'NE', 'NO', 'SE', 'SO']).optional(),
+
+  // VESS
+  vess_colchon_pasto: z.coerce.number().min(1).max(3).optional(),
+  vess_suelo: z.coerce.number().min(1).max(5).optional(),
+
+  // Características del suelo
+  textura_predominante: z.enum(['Arenosa', 'Franca', 'Arcillosa']).optional(),
+  color_predominante: z.enum(['Oscuro', 'Claro', 'Rojizo']).optional(),
+  olor_predominante: z.enum(['Orgánico', 'Áspero', 'Ácido', 'Neutro']).optional(),
+
+  // Compactación
+  penetrometro_200psi_cm: z.coerce.number().min(0).max(90).optional(),
+  nivel_compactacion: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+  evidencia_compactacion_superficial: z.boolean().optional(),
+
+  // Condiciones
+  drenaje: z.enum(['Adecuado', 'Deficiente']).optional(),
+  evidencia_erosion: z.boolean().optional(),
+
+  // Salud del árbol
+  puntuacion_salud_arbol: z.coerce.number().min(0).max(3).optional(),
+  especies_no_deseadas_presentes: z.boolean().optional(),
+  nivel_especies_no_deseadas: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+  sintomas_estres: z.array(z.string()).optional(),
+
+  // Biodiversidad
+  lombrices_rojas: z.coerce.number().min(0).optional(),
+  lombrices_grises: z.coerce.number().min(0).optional(),
+  lombrices_blancas: z.coerce.number().min(0).optional(),
+  huevos_lombrices: z.coerce.number().min(0).optional(),
+  tipos_diferentes_huevos: z.coerce.number().min(0).optional(),
+  presencia_micelio_hongos: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
+  raices_activas_visibles: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
+
+  // Conductividad eléctrica
+  conductividad_electrica: z.coerce.number().min(0).optional(),
+
+  // Fotos (strings por ahora)
+  foto_salud_arbol: z.string().optional(),
+  foto_perfil_suelo: z.string().optional(),
+
+  // Observaciones
+  observaciones_punto: z.string().optional()
+});
+
+// Schema para plaga/enfermedad (Frutales)
+const plagaEnfermedadFrutalSchema = z.object({
+  nombre: z.string(),
+  nivel_dano: z.enum(['sin_dano', 'leve', 'moderado', 'grave'])
+});
+
+// Schema para lote evaluado (Frutales)
+const loteEvaluadoFrutalSchema = z.object({
+  // Datos básicos
+  nombre_lote: z.string().optional(),
+
+  // Sistema productivo
+  numero_arboles_ha: z.coerce.number().min(0).optional(),
+  edad_cultivo_siembra: z.coerce.number().min(0).optional(),
+  edad_cultivo_produccion: z.coerce.number().min(0).optional(),
+  notas_resiembras: z.string().optional(),
+  rendimiento_kg_ha: z.coerce.number().min(0).optional(),
+  periodo_rendimiento: z.enum(['Anual', 'Por ciclo', 'Por cosecha', 'Traviesa']).optional(),
+  produccion_promedio_arbol: z.coerce.number().min(0).optional(),
+  porcentaje_exportacion: z.coerce.number().min(0).max(100).optional(),
+  tasa_descarte: z.coerce.number().min(0).max(100).optional(),
+  tipo_riego: z.enum(['Gravedad', 'Aspersores', 'Goteo', 'Manguera']).optional(),
+  precio_venta_kg: z.coerce.number().min(0).optional(),
+
+  // Información del lote
+  area_lote_m2: z.coerce.number().min(0).optional(),
+  coordenadas_gps_centro: z.string().optional(),
+  topografia_general: z.enum(['Plano', 'Inclinación leve', 'Inclinación fuerte']).optional(),
+
+  // Puntos de muestreo
+  puntos_muestreo: z.array(puntoMuestreoFrutalSchema).max(9, "Máximo 9 puntos de muestreo").optional(),
+
+  // Plagas y enfermedades
+  plagas_enfermedades: z.array(plagaEnfermedadFrutalSchema).optional(),
+  otras_plagas_observadas: z.string().optional()
+});
+
+// Schema principal para Manejo de Cultivo (Paso 4 - Frutales)
+export const manejoCultivoFrutalesSchema = z.object({
+  general: z.object({
+    metodo_plateo: z.array(z.string()).optional(),
+    deshierbe: z.array(z.string()).optional(),
+    frecuencia_plateo: z.enum(['Mensual', 'Bimestral', 'Trimestral', 'Dos veces al año']).optional(),
+    especies_predominantes: z.array(especiePredomianteFrutalSchema).max(4, "Máximo 4 especies").optional(),
+    arboles_resembrados: z.coerce.number().min(0).optional(),
+    tipo_podas: z.array(z.string()).optional(),
+    ultimas_podas_realizadas: z.string().optional(),
+    cantidad_fertilizante_sintetico_por_arbol: z.coerce.number().min(0).optional(),
+    usa_abono_organico: z.boolean().optional(),
+    tipos_abono_organico: z.string().optional(),
+    cantidad_abono_organico_por_arbol: z.coerce.number().min(0).optional()
+  }).optional(),
+  cuantos_lotes_evaluados: z.coerce.number().min(0).optional(),
+  lotes_evaluados: z.array(loteEvaluadoFrutalSchema).optional()
+});
+
+// ============================================
 // SCHEMA PRINCIPAL DE DIAGNÓSTICO
 // ============================================
 
