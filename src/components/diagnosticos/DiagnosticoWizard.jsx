@@ -15,16 +15,18 @@ import Step1InformacionGeneral from "./steps/Step1InformacionGeneral";
 import Step2 from "./steps/Step2";
 import Step3 from "./steps/Step3";
 import Step4 from "./steps/Step4";
+import Step5IndicadoresP4G from "./steps/Step5IndicadoresP4G";
+import Step6Sostenibilidad from "./steps/Step6Sostenibilidad";
 // TODO: Import other steps when created
 
 const STEPS_CONFIG = [
   { id: 1, title: "Información General", fraction: "1/10" },
   { id: 2, title: "Sistema Productivo", fraction: "2/10" },
   { id: 3, title: "Fertilización y Fumigación", fraction: "3/10" },
-  { id: 4, title: "Manejo de Pastoreo", fraction: "4/10" },
-  { id: 5, title: "Evaluación por Lote", fraction: "5/10" },
-  { id: 6, title: "Indicadores P4G", fraction: "6/10" },
-  { id: 7, title: "Sostenibilidad", fraction: "7/10" },
+  { id: 4, title: "Manejo de Pastoreo/Cultivo", fraction: "4/10" },
+  { id: 5, title: "Indicadores P4G", fraction: "5/10" },
+  { id: 6, title: "Sostenibilidad", fraction: "6/10" },
+  { id: 7, title: "Evaluación por Lote", fraction: "7/10" },
   { id: 8, title: "Aspectos Económicos", fraction: "8/10" },
   { id: 9, title: "Observaciones", fraction: "9/10" },
   { id: 10, title: "Validación y Cierre", fraction: "10/10" },
@@ -124,6 +126,20 @@ export default function DiagnosticoWizard() {
           <Step4
             data={formData}
             finca={finca}
+            onChange={handleStepChange}
+          />
+        );
+      case 5:
+        return (
+          <Step5IndicadoresP4G
+            data={formData}
+            onChange={handleStepChange}
+          />
+        );
+      case 6:
+        return (
+          <Step6Sostenibilidad
+            data={formData}
             onChange={handleStepChange}
           />
         );

@@ -557,6 +557,76 @@ export const manejoCultivoFloresSchema = z.object({
 });
 
 // ============================================
+// ============================================
+// PASO 5: INDICADORES P4G (Común para todos)
+// ============================================
+
+export const indicadoresP4GSchema = z.object({
+  resiliencia_percibida: z.object({
+    preparacion_cambios_climaticos: z.coerce.number().min(1).max(5).optional(),
+    conocimientos_manejo_sostenible: z.coerce.number().min(1).max(5).optional(),
+    capacidad_recuperacion_clima_extremo: z.coerce.number().min(1).max(5).optional(),
+    estabilidad_economica_inversion: z.coerce.number().min(1).max(5).optional(),
+  }).optional(),
+
+  impacto_social_genero: z.object({
+    quien_toma_decisiones: z.enum(['Solo hombres', 'Solo mujeres', 'Conjunto hombre-mujer', 'Otros']).optional(),
+
+    // Beneficiarios directos SaBio
+    hombres_beneficiarios_directos_sabio: z.coerce.number().min(0).optional(),
+    hombres_trabajadores_empresa: z.coerce.number().min(0).optional(),
+    mujeres_beneficiarias_directas_sabio: z.coerce.number().min(0).optional(),
+    mujeres_trabajadoras_empresa: z.coerce.number().min(0).optional(),
+
+    // Beneficiarios indirectos
+    hombres_beneficiarios_indirectos: z.coerce.number().min(0).optional(),
+    mujeres_beneficiarias_indirectas: z.coerce.number().min(0).optional(),
+
+    // Nuevos empleos
+    genera_nuevos_empleos: z.boolean().optional(),
+    empleos_masculinos_nuevos: z.coerce.number().min(0).optional(),
+    empleos_femeninos_nuevos: z.coerce.number().min(0).optional(),
+    tipo_empleos_nuevos: z.string().optional(),
+
+    // NPS
+    probabilidad_recomendar_sabio: z.coerce.number().min(0).max(10).optional(),
+    razon_calificacion: z.string().optional(),
+  }).optional(),
+});
+
+// ============================================
+// PASO 6: SOSTENIBILIDAD Y DISPOSICIÓN AL CAMBIO (Común para todos)
+// ============================================
+
+export const sostenibilidadSchema = z.object({
+  // Prácticas regenerativas
+  conoce_practicas_regenerativas: z.boolean().optional(),
+  cuales_practicas_regenerativas: z.string().optional(),
+
+  // Proyectos sostenibles
+  ha_participado_proyectos_sostenibles: z.boolean().optional(),
+  cuales_proyectos_sostenibles: z.string().optional(),
+
+  // Interés en innovaciones
+  interes_innovaciones: z.enum(['Sí', 'No', 'Parcial']).optional(),
+
+  // Consulta experiencias
+  pregunta_experiencias_otras_fincas: z.boolean().optional(),
+
+  // Asistencia técnica
+  cuenta_asistencia_tecnica: z.boolean().optional(),
+  proveedor_asistencia: z.string().optional(),
+
+  // Metas y visión
+  metas_vision_finca: z.enum(['Ninguna definida', 'Productividad', 'Regeneración', 'Sucesión familiar']).optional(),
+
+  // Actitud hacia microbiología
+  actitud_microbiologia_suelo: z.enum(['Abierto', 'Escéptico', 'Entusiasta']).optional(),
+
+  // Nivel de tecnificación
+  nivel_tecnificacion: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+});
+
 // SCHEMA PRINCIPAL DE DIAGNÓSTICO
 // ============================================
 
@@ -572,4 +642,6 @@ export const createDiagnosticoSchema = z.object({
   datos_frutales: z.any().optional(),
   datos_cafe: z.any().optional(),
   datos_aguacate: z.any().optional(),
+  indicadores_p4g: indicadoresP4GSchema.optional(),
+  sostenibilidad: sostenibilidadSchema.optional(),
 });
