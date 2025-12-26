@@ -17,6 +17,7 @@ import Step3 from "./steps/Step3";
 import Step4 from "./steps/Step4";
 import Step5IndicadoresP4G from "./steps/Step5IndicadoresP4G";
 import Step6Sostenibilidad from "./steps/Step6Sostenibilidad";
+import Step7Biofabrica from "./steps/Step7Biofabrica";
 // TODO: Import other steps when created
 
 const STEPS_CONFIG = [
@@ -26,7 +27,7 @@ const STEPS_CONFIG = [
   { id: 4, title: "Manejo de Pastoreo/Cultivo", fraction: "4/10" },
   { id: 5, title: "Indicadores P4G", fraction: "5/10" },
   { id: 6, title: "Sostenibilidad", fraction: "6/10" },
-  { id: 7, title: "Evaluación por Lote", fraction: "7/10" },
+  { id: 7, title: "Biofábrica del Cliente", fraction: "7/10" },
   { id: 8, title: "Aspectos Económicos", fraction: "8/10" },
   { id: 9, title: "Observaciones", fraction: "9/10" },
   { id: 10, title: "Validación y Cierre", fraction: "10/10" },
@@ -139,6 +140,13 @@ export default function DiagnosticoWizard() {
       case 6:
         return (
           <Step6Sostenibilidad
+            data={formData}
+            onChange={handleStepChange}
+          />
+        );
+      case 7:
+        return (
+          <Step7Biofabrica
             data={formData}
             onChange={handleStepChange}
           />

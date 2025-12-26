@@ -627,6 +627,41 @@ export const sostenibilidadSchema = z.object({
   nivel_tecnificacion: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
 });
 
+// ============================================
+// PASO 7: BIOFÁBRICA DEL CLIENTE (Común para todos)
+// ============================================
+
+export const biofabricaSchema = z.object({
+  // Experiencia previa
+  experiencia_previa: z.object({
+    tiene_experiencia: z.boolean().optional(),
+    resultado_anterior: z.enum(['Bien', 'Mal']).optional(),
+    dificultades_encontradas: z.array(z.enum(['Tiempo', 'Costo', 'Insumos', 'Claridad', 'Disciplina', 'Ver resultados'])).optional(),
+  }).optional(),
+
+  // Procesos actuales
+  procesos_actuales: z.object({
+    tiene_biofabrica_compostadero: z.boolean().optional(),
+    tiene_lombricultivo: z.boolean().optional(),
+    tiene_fermentos: z.boolean().optional(),
+    tiene_bokashi: z.boolean().optional(),
+    tiene_compostaje: z.boolean().optional(),
+    tiene_cultivos_microbios: z.boolean().optional(),
+    ha_invertido_infraestructura: z.boolean().optional(),
+  }).optional(),
+
+  // Observaciones y evidencia
+  observaciones: z.object({
+    detalle_proceso_observado: z.string().optional(),
+    nivel_organizacion_tecnificacion: z.enum(['Artesanal', 'Básico', 'Organizado', 'Tecnificado']).optional(),
+    nivel_registro: z.enum(['No hay', 'Poco en papel', 'Se monitorea constante', 'Digital']).optional(),
+    potencial_escalabilidad: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+    puntos_criticos: z.array(z.enum(['Calidad de agua', 'Tiempo de proceso', 'Calidad de insumos', 'Otros'])).optional(),
+    foto_evidencia: z.string().optional(),
+    video_evidencia: z.string().optional(),
+  }).optional(),
+});
+
 // SCHEMA PRINCIPAL DE DIAGNÓSTICO
 // ============================================
 
@@ -644,4 +679,5 @@ export const createDiagnosticoSchema = z.object({
   datos_aguacate: z.any().optional(),
   indicadores_p4g: indicadoresP4GSchema.optional(),
   sostenibilidad: sostenibilidadSchema.optional(),
+  biofabrica: biofabricaSchema.optional(),
 });
