@@ -662,6 +662,48 @@ export const biofabricaSchema = z.object({
   }).optional(),
 });
 
+// ============================================
+// PASO 8: OBSERVACIONES Y SEGUIMIENTO
+// ============================================
+
+export const observacionesSeguimientoSchema = z.object({
+  // Observaciones técnicas
+  observaciones_tecnicas_visita: z.string().optional(),
+  sintomas_visibles_adicionales: z.string().optional(),
+
+  // Medidas de control (array dinámico)
+  medidas_control: z.array(z.object({
+    descripcion: z.string().optional()
+  })).optional(),
+
+  // Recomendaciones (array dinámico)
+  recomendaciones: z.array(z.object({
+    descripcion: z.string().optional()
+  })).optional(),
+
+  // Próxima visita
+  proxima_visita_programada: z.string().optional(), // Date as string from input
+
+  // Muestras enviadas a laboratorio
+  muestras_suelo_lotes: z.array(z.object({
+    nombre_lote: z.string(),
+    seleccionado: z.boolean()
+  })).optional(),
+  muestra_forraje: z.boolean().optional(),
+  muestra_agua: z.boolean().optional(),
+
+  // Información de muestras
+  codigo_muestras: z.string().optional(),
+  analisis_requeridos: z.string().optional(),
+
+  // Fotografías y archivos
+  fotografias_tomadas_descripcion: z.string().optional(),
+  links_archivos: z.string().optional(),
+
+  // Observaciones del productor
+  observaciones_productor: z.string().optional()
+});
+
 // SCHEMA PRINCIPAL DE DIAGNÓSTICO
 // ============================================
 
@@ -680,4 +722,5 @@ export const createDiagnosticoSchema = z.object({
   indicadores_p4g: indicadoresP4GSchema.optional(),
   sostenibilidad: sostenibilidadSchema.optional(),
   biofabrica: biofabricaSchema.optional(),
+  observaciones_seguimiento: observacionesSeguimientoSchema.optional(),
 });

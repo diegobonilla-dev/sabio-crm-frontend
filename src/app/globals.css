@@ -26,6 +26,26 @@
     -webkit-user-select: none;
     user-select: none;
   }
+
+  /* Scroll snap para wizard mobile */
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-center {
+    scroll-snap-align: center;
+  }
+
+  .snap-mandatory {
+    scroll-snap-type: x mandatory;
+  }
+
+  /* Transición suave para sidebar */
+  .transition-sidebar {
+    transition-property: width, margin, padding;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
 }
 
 

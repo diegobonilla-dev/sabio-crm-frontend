@@ -159,7 +159,7 @@ export default function Step7Biofabrica({ data, onChange }) {
               <Label className="text-sm font-medium">
                 Dificultades encontradas (puede seleccionar varias)
               </Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 gap-3">
                 {['Tiempo', 'Costo', 'Insumos', 'Claridad', 'Disciplina', 'Ver resultados'].map((dificultad) => (
                   <div key={dificultad} className="flex items-center space-x-2">
                     <Checkbox

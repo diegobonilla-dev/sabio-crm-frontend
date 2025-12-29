@@ -3,8 +3,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserCog, ChevronDown, Building } from "lucide-react";
+import {
+  UserCog,
+  ChevronDown,
+  Building,
+  LayoutDashboard,
+  Users,
+  Sprout,
+  ClipboardList,
+  Settings
+} from "lucide-react";
 import useAuthStore from "@/app/lib/store";
+import { useSidebarCollapse } from "@/hooks/useSidebarCollapse";
+import { SidebarToggleButton } from "@/components/layout/SidebarToggleButton";
+import { NavItem } from "@/components/layout/NavItem";
+import { CollapsibleNavGroup } from "@/components/layout/CollapsibleNavGroup";
 import MobileMenu from "@/components/layout/MobileMenu";
 import MobileDrawer from "@/components/layout/MobileDrawer";
 import BottomNav from "@/components/layout/BottomNav";
@@ -13,6 +26,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 export default function ProtectedLayout({ children }) {
   const router = useRouter();
@@ -23,6 +37,9 @@ export default function ProtectedLayout({ children }) {
   const [isReady, setIsReady] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [fincasOpen, setFincasOpen] = useState(false);
+
+  // Hook para sidebar colapsable
+  const { isCollapsed, toggle, isHydrated: isSidebarHydrated } = useSidebarCollapse();
 
   // Verificar si el usuario es admin o vendedor
   const isAdmin = user?.role === "sabio_admin";
@@ -55,71 +72,99 @@ export default function ProtectedLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar Desktop */}
-      <aside className="hidden md:block w-64 bg-white border-r border-gray-200 flex-shrink-0">
-        <div className="p-4">
-          <h2 className="text-xl font-bold text-gray-800">SaBio CRM</h2>
-        </div>
-        <nav className="mt-4">
-          <div className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
-            Dashboard
+      {/* Sidebar Desktop - Colapsable */}
+      {isSidebarHydrated && (
+        <aside
+          className={cn(
+            "hidden md:flex flex-col bg-white border-r border-gray-200 flex-shrink-0 transition-all duration-200",
+            isCollapsed ? "w-16" : "w-64"
+          )}
+        >
+          {/* Logo / Header */}
+          <div className={cn(
+            "border-b border-gray-200 flex items-center flex-shrink-0",
+            "h-[57px] md:h-[65px]", // Altura fija para alinear con header principal
+            isCollapsed ? "justify-center px-2" : "px-4"
+          )}>
+            {isCollapsed ? (
+              <span className="text-xl font-bold text-blue-600">S</span>
+            ) : (
+              <h2 className="text-xl font-bold text-gray-800">SaBio CRM</h2>
+            )}
           </div>
-          <Link
-            href="/crm"
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors block"
-          >
-            CRM
-          </Link>
 
-          {/* Fincas con Desplegable */}
-          <Collapsible open={fincasOpen} onOpenChange={setFincasOpen}>
-            <CollapsibleTrigger className="w-full px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors flex items-center justify-between">
-              <span>Fincas</span>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform duration-200 ${
-                  fincasOpen ? "transform rotate-180" : ""
-                }`}
+          {/* Navigation */}
+          <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+            <NavItem
+              href="/dashboard"
+              icon={LayoutDashboard}
+              label="Dashboard"
+              isCollapsed={isCollapsed}
+            />
+
+            <NavItem
+              href="/crm"
+              icon={Users}
+              label="CRM"
+              isCollapsed={isCollapsed}
+            />
+
+            {/* Fincas - Grupo colapsable cuando no está collapsed */}
+            {!isCollapsed ? (
+              <CollapsibleNavGroup
+                icon={Sprout}
+                label="Fincas"
+                items={[
+                  { href: '/fincas', label: 'Fincas', icon: Sprout },
+                  { href: '/fincas/diagnosticos', label: 'Diagnósticos', icon: ClipboardList }
+                ]}
+                isCollapsed={isCollapsed}
               />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="bg-gray-50">
-              <Link
-                href="/fincas"
-                className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors block"
-              >
-                Fincas
-              </Link>
-              <Link
-                href="/fincas/diagnosticos"
-                className="px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors block"
-              >
-                Diagnósticos
-              </Link>
-            </CollapsibleContent>
-          </Collapsible>
+            ) : (
+              // Cuando está collapsed, mostrar items individuales
+              <>
+                <NavItem
+                  href="/fincas"
+                  icon={Sprout}
+                  label="Fincas"
+                  isCollapsed={isCollapsed}
+                />
+                <NavItem
+                  href="/fincas/diagnosticos"
+                  icon={ClipboardList}
+                  label="Diagnósticos"
+                  isCollapsed={isCollapsed}
+                />
+              </>
+            )}
 
-          <div className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors">
-            Admin
-          </div>
-          {isAdmin && (
-            <Link
-              href="/admin/usuarios"
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors flex items-center gap-2"
-            >
-              <UserCog className="h-4 w-4" />
-              Usuarios
-            </Link>
-          )}
-          {isAdminOrVendedor && (
-            <Link
-              href="/admin/corporativos"
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer transition-colors flex items-center gap-2"
-            >
-              <Building className="h-4 w-4" />
-              Corporativos
-            </Link>
-          )}
-        </nav>
-      </aside>
+            <NavItem
+              href="/admin"
+              icon={Settings}
+              label="Admin"
+              isCollapsed={isCollapsed}
+            />
+
+            {isAdmin && (
+              <NavItem
+                href="/admin/usuarios"
+                icon={UserCog}
+                label="Usuarios"
+                isCollapsed={isCollapsed}
+              />
+            )}
+
+            {isAdminOrVendedor && (
+              <NavItem
+                href="/admin/corporativos"
+                icon={Building}
+                label="Corporativos"
+                isCollapsed={isCollapsed}
+              />
+            )}
+          </nav>
+        </aside>
+      )}
 
       {/* Mobile Drawer */}
       <MobileDrawer
@@ -201,8 +246,8 @@ export default function ProtectedLayout({ children }) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
+        <header className="bg-white border-b border-gray-200 px-4 md:px-6 flex-shrink-0 h-[57px] md:h-[65px] flex items-center">
+          <div className="flex items-center justify-between w-full">
             {/* Mobile: Hamburger + Logo */}
             <div className="flex items-center gap-3 md:hidden min-w-0">
               <MobileMenu
@@ -212,10 +257,15 @@ export default function ProtectedLayout({ children }) {
               <h1 className="text-lg font-semibold text-gray-800 truncate">Dashboard</h1>
             </div>
 
-            {/* Desktop: Solo título */}
-            <h1 className="hidden md:block text-2xl font-semibold text-gray-800">
-              Dashboard
-            </h1>
+            {/* Desktop: Toggle Button + Título */}
+            <div className="hidden md:flex items-center gap-3">
+              {isSidebarHydrated && (
+                <SidebarToggleButton isCollapsed={isCollapsed} onToggle={toggle} />
+              )}
+              <h1 className="text-2xl font-semibold text-gray-800">
+                Dashboard
+              </h1>
+            </div>
 
             {/* User Info & Actions */}
             <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">

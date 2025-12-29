@@ -4,11 +4,17 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Check } from "lucide-react";
 import { useFinca } from "@/hooks/fincas/useFincas";
 import { useDiagnosticoDraft } from "@/hooks/diagnosticos/useDiagnosticoDraft";
 import { useDiagnosticoMutations } from "@/hooks/diagnosticos/useDiagnosticoMutations";
+
+// Import wizard components
+import {
+  WizardProgressMobile,
+  WizardProgressTablet,
+  WizardProgressDesktop
+} from "./WizardProgress";
+import { STEPS_CONFIG, TOTAL_STEPS, calculateProgress } from "./wizard-config";
 
 // Import step components
 import Step1InformacionGeneral from "./steps/Step1InformacionGeneral";
@@ -18,22 +24,8 @@ import Step4 from "./steps/Step4";
 import Step5IndicadoresP4G from "./steps/Step5IndicadoresP4G";
 import Step6Sostenibilidad from "./steps/Step6Sostenibilidad";
 import Step7Biofabrica from "./steps/Step7Biofabrica";
+import Step8Observaciones from "./steps/Step8Observaciones";
 // TODO: Import other steps when created
-
-const STEPS_CONFIG = [
-  { id: 1, title: "Información General", fraction: "1/10" },
-  { id: 2, title: "Sistema Productivo", fraction: "2/10" },
-  { id: 3, title: "Fertilización y Fumigación", fraction: "3/10" },
-  { id: 4, title: "Manejo de Pastoreo/Cultivo", fraction: "4/10" },
-  { id: 5, title: "Indicadores P4G", fraction: "5/10" },
-  { id: 6, title: "Sostenibilidad", fraction: "6/10" },
-  { id: 7, title: "Biofábrica del Cliente", fraction: "7/10" },
-  { id: 8, title: "Aspectos Económicos", fraction: "8/10" },
-  { id: 9, title: "Observaciones", fraction: "9/10" },
-  { id: 10, title: "Validación y Cierre", fraction: "10/10" },
-];
-
-const TOTAL_STEPS = 10;
 
 export default function DiagnosticoWizard() {
   const searchParams = useSearchParams();
@@ -46,7 +38,7 @@ export default function DiagnosticoWizard() {
 
   const { data: finca } = useFinca(fincaId);
   const { saveDraft, loadDraft, clearDraft } = useDiagnosticoDraft(fincaId);
-  const { createDiagnostico/* , updateDiagnostico  */} = useDiagnosticoMutations();
+  const { createDiagnostico } = useDiagnosticoMutations();
 
   // Load draft on mount
   useEffect(() => {
@@ -68,15 +60,26 @@ export default function DiagnosticoWizard() {
     setFormData(prev => ({ ...prev, ...data }));
   };
 
+  const handleStepClick = (stepId) => {
+    // Permitir navegar a pasos completados o al actual
+    if (stepId <= currentStep) {
+      setCurrentStep(stepId);
+    }
+  };
+
   const handleNext = () => {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(prev => prev + 1);
+      // Scroll to top en mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(prev => prev - 1);
+      // Scroll to top en mobile
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -151,6 +154,13 @@ export default function DiagnosticoWizard() {
             onChange={handleStepChange}
           />
         );
+      case 8:
+        return (
+          <Step8Observaciones
+            data={formData}
+            onChange={handleStepChange}
+          />
+        );
       // TODO: Add more steps
       default:
         return (
@@ -178,138 +188,175 @@ export default function DiagnosticoWizard() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header con Progreso */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Diagnóstico</h1>
-              <p className="text-sm text-gray-600">
-                {finca?.nombre || "Cargando..."}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                Guardar Borrador
-              </Button>
-              <Button variant="outline" size="sm">
-                Generar PDF
-              </Button>
-              <Button size="sm">
-                Enviar para Firma
-              </Button>
-            </div>
-          </div>
+  const currentStepConfig = STEPS_CONFIG.find(s => s.id === currentStep);
 
-          {/* Progress Bar */}
-          <div>
-            <div className="flex justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
-                Completado
-              </span>
-              <span className="text-sm font-medium text-gray-700">
-                {Math.round((currentStep / TOTAL_STEPS) * 100)}%
-              </span>
-            </div>
-            <Progress value={(currentStep / TOTAL_STEPS) * 100} className="h-2" />
-          </div>
-        </div>
+  return (
+    <div className="h-full bg-gray-50 flex flex-col">
+      {/* Mobile Progress - Horizontal sticky - SOLO < md */}
+      <div className="md:hidden">
+        <WizardProgressMobile
+          steps={STEPS_CONFIG}
+          currentStep={currentStep}
+          onStepClick={handleStepClick}
+        />
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-6 py-6">
-        <div className="flex gap-6">
-          {/* Sidebar - Lista de Pasos */}
-          <Card className="w-80 flex-shrink-0 p-4 h-fit">
-            <h2 className="font-semibold text-gray-900 mb-4">Progreso del Diagnóstico</h2>
-            <div className="space-y-1">
-              {STEPS_CONFIG.map((step) => {
-                const isCompleted = step.id < currentStep;
-                const isCurrent = step.id === currentStep;
+      {/* Main Layout con Sidebars - Ocupa el resto de la altura */}
+      <div className="flex flex-1 min-h-0">
+        {/* Tablet Progress - Sidebar mini */}
+        <WizardProgressTablet
+          steps={STEPS_CONFIG}
+          currentStep={currentStep}
+          onStepClick={handleStepClick}
+        />
 
-                return (
-                  <div
-                    key={step.id}
-                    className={`flex items-center gap-3 p-2 rounded-lg transition-colors ${
-                      isCurrent
-                        ? "bg-green-50 border border-green-200"
-                        : isCompleted
-                        ? "bg-gray-50"
-                        : "hover:bg-gray-50"
-                    }`}
-                  >
-                    <div
-                      className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                        isCompleted
-                          ? "bg-green-500 text-white"
-                          : isCurrent
-                          ? "bg-green-500 text-white"
-                          : "bg-gray-200 text-gray-600"
-                      }`}
-                    >
-                      {isCompleted ? <Check className="h-4 w-4" /> : step.id}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`text-sm font-medium truncate ${
-                          isCurrent ? "text-green-700" : "text-gray-700"
-                        }`}
-                      >
-                        {step.title}
-                      </p>
-                    </div>
-                    <span className="text-xs text-gray-500">{step.fraction}</span>
-                  </div>
-                );
-              })}
-            </div>
+        {/* Desktop Progress - Sidebar completo */}
+        <WizardProgressDesktop
+          steps={STEPS_CONFIG}
+          currentStep={currentStep}
+          onStepClick={handleStepClick}
+        />
 
-            {/* Recordatorio */}
-            <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start gap-2">
-                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs">
-                  i
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-blue-900">Recordatorio</p>
-                  <p className="text-xs text-blue-700 mt-1">
-                    Guarda tu progreso frecuentemente. Los datos se almacenan automáticamente cada 5 minutos.
+        {/* Content Area - Responsive con estructura flex */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* Header con info de finca - STICKY en desktop */}
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 h-[57px] md:h-[65px]">
+            <div className="px-4 md:px-6 lg:px-8 h-full flex items-center">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
+                {/* Info de la finca */}
+                <div className="min-w-0">
+                  <h1 className="text-lg md:text-xl font-bold text-gray-900 truncate">
+                    Diagnóstico: {finca?.nombre || "Cargando..."}
+                  </h1>
+                  <p className="text-xs md:text-sm text-gray-600">
+                    Paso {currentStep} de {TOTAL_STEPS} • {calculateProgress(currentStep)}% completado
                   </p>
+                </div>
+
+                {/* Actions - Desktop only */}
+                <div className="hidden lg:flex gap-2 flex-shrink-0">
+                  <Button variant="outline" size="sm">
+                    Guardar Borrador
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Generar PDF
+                  </Button>
+                  <Button size="sm">
+                    Enviar para Firma
+                  </Button>
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
 
-          {/* Content Area */}
-          <Card className="flex-1 p-6">
-            {/* Step Content */}
-            <div className="min-h-[500px]">
-              {renderStep()}
-            </div>
+          {/* Step Content - Scrollable con padding bottom para mobile */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="px-4 md:px-6 lg:px-8 py-6 lg:py-8 pb-24 md:pb-8">
+              {/* Step Header - Mobile/Tablet */}
+              <div className="lg:hidden mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-1">
+                  {currentStepConfig?.title}
+                </h2>
+                {currentStepConfig?.description && (
+                  <p className="text-sm text-gray-600">
+                    {currentStepConfig.description}
+                  </p>
+                )}
+              </div>
 
-            {/* Navigation */}
-            <div className="flex justify-between mt-8 pt-6 border-t">
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                disabled={currentStep === 1}
-              >
-                Anterior
-              </Button>
+              {/* Step Header - Desktop */}
+              <div className="hidden lg:block mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                  {currentStepConfig?.title}
+                </h2>
+                {currentStepConfig?.description && (
+                  <p className="text-gray-600">
+                    {currentStepConfig.description}
+                  </p>
+                )}
+              </div>
 
-              {currentStep < TOTAL_STEPS ? (
-                <Button onClick={handleNext}>
-                  Siguiente
+              {/* Step Content */}
+              <div className="mb-6">
+                {renderStep()}
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="border-t border-gray-200 pt-6 mt-8">
+                {/* Mobile/Tablet - Grid de 2 columnas */}
+                <div className="grid grid-cols-2 gap-3 lg:hidden">
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    disabled={currentStep === 1}
+                    className="min-h-[44px]"
+                  >
+                    ← Anterior
+                  </Button>
+
+                  {currentStep < TOTAL_STEPS ? (
+                    <Button
+                      onClick={handleNext}
+                      className="min-h-[44px]"
+                    >
+                      Siguiente →
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={createDiagnostico.isPending}
+                      className="min-h-[44px]"
+                    >
+                      {createDiagnostico.isPending ? "Guardando..." : "Finalizar"}
+                    </Button>
+                  )}
+                </div>
+
+                {/* Desktop - Layout horizontal con contador central */}
+                <div className="hidden lg:flex justify-between items-center">
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    disabled={currentStep === 1}
+                  >
+                    ← Anterior
+                  </Button>
+
+                  <span className="text-sm text-gray-600">
+                    Paso {currentStep} de {TOTAL_STEPS}
+                  </span>
+
+                  {currentStep < TOTAL_STEPS ? (
+                    <Button onClick={handleNext}>
+                      Siguiente →
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={createDiagnostico.isPending}
+                    >
+                      {createDiagnostico.isPending ? "Guardando..." : "Finalizar"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions móviles - Bottom */}
+              <div className="lg:hidden mt-6 pt-6 border-t border-gray-200 flex flex-col gap-2">
+                <Button variant="outline" size="sm" className="w-full">
+                  Guardar Borrador
                 </Button>
-              ) : (
-                <Button onClick={handleSubmit} disabled={createDiagnostico.isPending}>
-                  {createDiagnostico.isPending ? "Guardando..." : "Finalizar"}
-                </Button>
-              )}
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm">
+                    Generar PDF
+                  </Button>
+                  <Button size="sm">
+                    Enviar Firma
+                  </Button>
+                </div>
+              </div>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
