@@ -6,8 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Save, FileText, Send, Clock } from "lucide-react";
 import { useFinca } from "@/hooks/fincas/useFincas";
-import { useDiagnosticoDraft } from "@/hooks/diagnosticos/useDiagnosticoDraft";
+import { useDiagnosticoDraftStore } from "@/lib/store/diagnosticoDraftStore";
 import { useDiagnosticoMutations } from "@/hooks/diagnosticos/useDiagnosticoMutations";
+import useAuthStore from "@/app/lib/store";
 
 // Import wizard components
 import {
@@ -38,27 +39,51 @@ export default function DiagnosticoWizard() {
   const [formData, setFormData] = useState({});
 
   const { data: finca } = useFinca(fincaId);
-  const { saveDraft, loadDraft, clearDraft } = useDiagnosticoDraft(fincaId);
   const { createDiagnostico } = useDiagnosticoMutations();
 
-  // Load draft on mount
-  useEffect(() => {
-    const draft = loadDraft();
-    if (draft) {
-      setFormData(draft.formData);
-      setCurrentStep(draft.currentStep);
-    }
-  }, [loadDraft]);
+  // Zustand store para persistencia
+  const user = useAuthStore((state) => state.user);
+  const { loadDraft, saveDraft, deleteDraft, _hasHydrated } = useDiagnosticoDraftStore();
 
-  // Auto-save draft on formData change
+  // Cargar draft al montar el componente (solo después de hidratar)
   useEffect(() => {
-    if (Object.keys(formData).length > 0) {
-      saveDraft({ formData, currentStep });
+    if (_hasHydrated && fincaId && user?.id) {
+      const draft = loadDraft(fincaId, user.id);
+      if (draft) {
+        setFormData(draft.formData);
+        setCurrentStep(draft.currentStep);
+      }
     }
-  }, [formData, currentStep, saveDraft]);
+  }, [_hasHydrated, fincaId, user, loadDraft]);
+
+  // Auto-guardar draft cuando cambian los datos del formulario
+  useEffect(() => {
+    if (_hasHydrated && fincaId && user?.id && Object.keys(formData).length > 0) {
+      saveDraft(fincaId, user.id, {
+        formData,
+        currentStep,
+        tipoDiagnostico
+      });
+    }
+  }, [formData, currentStep, fincaId, user, tipoDiagnostico, saveDraft, _hasHydrated]);
 
   const handleStepChange = (data) => {
-    setFormData(prev => ({ ...prev, ...data }));
+    setFormData(prev => {
+      // Merge profundo para objetos anidados como datos_ganaderia, datos_frutales, etc.
+      const merged = { ...prev };
+
+      Object.keys(data).forEach(key => {
+        if (typeof data[key] === 'object' && !Array.isArray(data[key]) && data[key] !== null) {
+          // Si es un objeto, hacer merge profundo
+          merged[key] = { ...merged[key], ...data[key] };
+        } else {
+          // Si no es objeto, reemplazar directamente
+          merged[key] = data[key];
+        }
+      });
+
+      return merged;
+    });
   };
 
   const handleStepClick = (stepId) => {
@@ -93,7 +118,11 @@ export default function DiagnosticoWizard() {
         estado: 'Completado'
       });
 
-      clearDraft();
+      // Eliminar el draft después de guardar exitosamente
+      if (fincaId && user?.id) {
+        deleteDraft(fincaId, user.id);
+      }
+
       router.push('/fincas/diagnosticos');
     } catch (error) {
       console.error('Error al guardar:', error);

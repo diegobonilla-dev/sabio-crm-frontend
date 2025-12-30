@@ -1,6 +1,27 @@
 "use client";
 
-export default function Step2Default({ finca }) {
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+
+export default function Step2Default({ data, finca, onChange }) {
+  const { watch } = useForm({
+    defaultValues: data?.datos_default?.sistema_productivo || {}
+  });
+
+  // Auto-save on change
+  const formValues = watch();
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange({
+        datos_default: {
+          sistema_productivo: formValues
+        }
+      });
+    }, 300);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formValues]);
+
   return (
     <div className="space-y-6">
       <div>

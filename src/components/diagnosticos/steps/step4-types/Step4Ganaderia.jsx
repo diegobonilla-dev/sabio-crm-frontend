@@ -29,7 +29,8 @@ export default function Step4Ganaderia({ data, onChange }) {
     control,
     setValue,
     watch,
-    getValues
+    getValues,
+    reset
   } = useForm({
     resolver: zodResolver(manejoPastoreoSchema),
     defaultValues: data?.datos_ganaderia?.manejo_pastoreo || {
@@ -62,7 +63,15 @@ export default function Step4Ganaderia({ data, onChange }) {
     name: "lotes_evaluados"
   });
 
-  // Auto-save on change
+  // Sincronizar con datos al montar el componente
+  useEffect(() => {
+    if (data?.datos_ganaderia?.manejo_pastoreo) {
+      reset(data.datos_ganaderia.manejo_pastoreo);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
+
+  // Auto-guardar cambios en el formulario (con debounce)
   const formValues = watch();
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -73,7 +82,8 @@ export default function Step4Ganaderia({ data, onChange }) {
       });
     }, 300);
     return () => clearTimeout(timeout);
-  }, [formValues, onChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formValues]);
 
   // Handlers
   const handleAddEspeciePasto = () => {

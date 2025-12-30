@@ -27,12 +27,11 @@ export default function Step6Sostenibilidad({ data, onChange }) {
   const haParticipadoProyectos = watch("ha_participado_proyectos_sostenibles");
   const cuentaAsistencia = watch("cuenta_asistencia_tecnica");
 
-  // Auto-save on change
+  // Auto-guardar cambios en el formulario (con debounce)
   useEffect(() => {
     const timeout = setTimeout(() => {
       onChange({ sostenibilidad: formValues });
-    }, 300); // Debounce de 300ms
-
+    }, 300);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues]);

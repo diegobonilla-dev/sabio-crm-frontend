@@ -221,6 +221,9 @@ export function WizardProgressDesktop({ steps, currentStep, onStepClick }) {
                     status === 'pending' && "text-gray-400"
                   )}>
                     {step.title}
+                    <span className="ml-2 text-xs text-gray-400 font-normal">
+                      {step.fraction}
+                    </span>
                   </p>
                 </div>
               </button>

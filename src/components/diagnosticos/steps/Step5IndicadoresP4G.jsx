@@ -31,12 +31,11 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
   const formValues = watch();
   const generaNuevosEmpleos = watch("impacto_social_genero.genera_nuevos_empleos");
 
-  // Auto-save on change
+  // Auto-guardar cambios en el formulario (con debounce)
   useEffect(() => {
     const timeout = setTimeout(() => {
       onChange({ indicadores_p4g: formValues });
-    }, 300); // Debounce de 300ms
-
+    }, 300);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues]);

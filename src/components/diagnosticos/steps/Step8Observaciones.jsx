@@ -71,12 +71,11 @@ export default function Step8Observaciones({ data, onChange }) {
     }
   }, [data, formValues.muestras_suelo_lotes, setValue]);
 
-  // Auto-save on change
+  // Auto-guardar cambios en el formulario (con debounce)
   useEffect(() => {
     const timeout = setTimeout(() => {
       onChange({ observaciones_seguimiento: formValues });
     }, 300);
-
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues]);

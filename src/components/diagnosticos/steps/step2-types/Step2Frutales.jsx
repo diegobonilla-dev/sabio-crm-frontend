@@ -21,7 +21,8 @@ export default function Step2Frutales({ data, onChange }) {
     formState: { errors },
     setValue,
     watch,
-    getValues
+    getValues,
+    reset
   } = useForm({
     resolver: zodResolver(sistemaProductivoFrutalesSchema),
     defaultValues: data?.datos_frutales?.sistema_productivo || {
@@ -35,7 +36,15 @@ export default function Step2Frutales({ data, onChange }) {
     name: "lotes"
   });
 
-  // Auto-save on change
+  // Sincronizar con datos al montar el componente
+  useEffect(() => {
+    if (data?.datos_frutales?.sistema_productivo) {
+      reset(data.datos_frutales.sistema_productivo);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
+
+  // Auto-guardar cambios en el formulario (con debounce)
   const formValues = watch();
   useEffect(() => {
     const timeout = setTimeout(() => {

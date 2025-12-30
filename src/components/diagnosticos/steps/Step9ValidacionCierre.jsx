@@ -45,12 +45,11 @@ export default function Step9ValidacionCierre({ data, onChange }) {
   const [hayFirmaTecnico, setHayFirmaTecnico] = useState(false);
   const [hayFirmaProductor, setHayFirmaProductor] = useState(false);
 
-  // Auto-save on change
+  // Auto-guardar cambios en el formulario (con debounce)
   useEffect(() => {
     const timeout = setTimeout(() => {
       onChange({ validacion_cierre: formValues });
     }, 300);
-
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues]);

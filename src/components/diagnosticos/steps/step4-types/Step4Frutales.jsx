@@ -29,7 +29,8 @@ export default function Step4Frutales({ data, onChange }) {
     control,
     setValue,
     watch,
-    getValues
+    getValues,
+    reset
   } = useForm({
     resolver: zodResolver(manejoCultivoFrutalesSchema),
     defaultValues: data?.datos_frutales?.manejo_cultivo || {
@@ -66,7 +67,15 @@ export default function Step4Frutales({ data, onChange }) {
     name: "lotes_evaluados"
   });
 
-  // Auto-save on change
+  // Sincronizar con datos al montar el componente
+  useEffect(() => {
+    if (data?.datos_frutales?.manejo_cultivo) {
+      reset(data.datos_frutales.manejo_cultivo);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
+
+  // Auto-guardar cambios en el formulario (con debounce)
   const formValues = watch();
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -77,7 +86,8 @@ export default function Step4Frutales({ data, onChange }) {
       });
     }, 300);
     return () => clearTimeout(timeout);
-  }, [formValues, onChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formValues]);
 
   // Handlers
   const handleAddEspeciePredominante = () => {

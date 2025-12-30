@@ -10,9 +10,17 @@ import { Textarea } from "@/components/ui/textarea";
  * Paso 4: Manejo de Cultivo - Aguacate (Placeholder)
  */
 export default function Step4Aguacate({ data, onChange }) {
-  const { register, watch, setValue } = useForm({
+  const { register, watch, setValue, reset } = useForm({
     defaultValues: data?.datos_aguacate?.manejo_cultivo || { tipo_manejo: "", observaciones_generales: "" }
   });
+
+  // Sincronizar con datos al montar el componente
+  useEffect(() => {
+    if (data?.datos_aguacate?.manejo_cultivo) {
+      reset(data.datos_aguacate.manejo_cultivo);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
 
   const formValues = watch();
   useEffect(() => {

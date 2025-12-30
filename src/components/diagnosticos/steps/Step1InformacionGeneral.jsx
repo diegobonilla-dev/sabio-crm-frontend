@@ -60,7 +60,7 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
     setValue("hora_inicio", now.toTimeString().slice(0, 5));
   }, [finca, user, setValue]);
 
-  // Auto-save on change
+  // Auto-guardar cambios en el formulario (con debounce)
   const formValues = watch();
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -78,7 +78,7 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
 
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formValues]); // Removemos onChange de las dependencias
+  }, [formValues]); // Removemos onChange de las dependencias para evitar loops
 
   return (
     <div className="space-y-6">

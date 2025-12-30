@@ -9,10 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 /**
  * Paso 4: Manejo de Cultivo - Default (Placeholder)
  */
-export default function Step4Default({ onChange }) {
-  const { register, watch, setValue } = useForm({
-    defaultValues: { tipo_manejo: "", observaciones_generales: "" }
+export default function Step4Default({ data, onChange }) {
+  const { register, watch, setValue, reset } = useForm({
+    defaultValues: data?.manejo_cultivo || { tipo_manejo: "", observaciones_generales: "" }
   });
+
+  // Sincronizar con datos al montar el componente
+  useEffect(() => {
+    if (data?.manejo_cultivo) {
+      reset(data.manejo_cultivo);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
 
   const formValues = watch();
   useEffect(() => {

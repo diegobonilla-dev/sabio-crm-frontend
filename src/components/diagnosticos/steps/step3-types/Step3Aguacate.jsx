@@ -28,7 +28,8 @@ export default function Step3Aguacate({ data, onChange }) {
     formState: { errors },
     setValue,
     watch,
-    getValues
+    getValues,
+    reset
   } = useForm({
     resolver: zodResolver(fertilizacionFumigacionSchema),
     defaultValues: data?.datos_aguacate?.fertilizacion_fumigacion || {
@@ -74,7 +75,15 @@ export default function Step3Aguacate({ data, onChange }) {
     name: "lotes_diferenciados"
   });
 
-  // Auto-save on change
+  // Sincronizar con datos al montar el componente
+  useEffect(() => {
+    if (data?.datos_aguacate?.fertilizacion_fumigacion) {
+      reset(data.datos_aguacate.fertilizacion_fumigacion);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
+
+  // Auto-guardar cambios en el formulario (con debounce)
   const formValues = watch();
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -85,7 +94,8 @@ export default function Step3Aguacate({ data, onChange }) {
       });
     }, 300);
     return () => clearTimeout(timeout);
-  }, [formValues, onChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formValues]);
 
   // Handlers
   const handleAddProductoQuimico = () => {

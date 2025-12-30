@@ -36,12 +36,11 @@ export default function Step7Biofabrica({ data, onChange }) {
   const dificultadesSeleccionadas = watch("experiencia_previa.dificultades_encontradas") || [];
   const puntosCriticosSeleccionados = watch("observaciones.puntos_criticos") || [];
 
-  // Auto-save on change
+  // Auto-guardar cambios en el formulario (con debounce)
   useEffect(() => {
     const timeout = setTimeout(() => {
       onChange({ biofabrica: formValues });
     }, 300);
-
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formValues]);
