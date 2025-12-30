@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Tooltip,
@@ -38,7 +38,7 @@ export function WizardProgressMobile({ steps, currentStep, onStepClick }) {
       {/* Progress Numbers */}
       <div
         ref={scrollContainerRef}
-        className="flex items-center gap-2 px-4 py-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+        className="flex items-center gap-2.5 px-4 py-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
       >
         {steps.map((step) => {
           const status = getStepStatus(step.id, currentStep);
@@ -49,32 +49,36 @@ export function WizardProgressMobile({ steps, currentStep, onStepClick }) {
               onClick={() => onStepClick(step.id)}
               disabled={status === 'pending'}
               className={cn(
-                "flex-shrink-0 w-8 h-8 rounded-full snap-center",
-                "flex items-center justify-center text-sm font-semibold",
-                "transition-all duration-200",
-                status === 'completed' && "bg-green-500 text-white hover:bg-green-600",
-                status === 'current' && "bg-green-700 text-white ring-2 ring-green-700 ring-offset-2 scale-110",
-                status === 'pending' && "bg-gray-200 text-gray-500 cursor-not-allowed"
+                "flex-shrink-0 flex flex-col items-center gap-0.5 snap-center",
+                "transition-all duration-200"
               )}
               aria-label={`${step.title} - ${status === 'completed' ? 'Completado' : status === 'current' ? 'Actual' : 'Pendiente'}`}
               aria-current={status === 'current' ? 'step' : undefined}
             >
-              {status === 'completed' ? (
-                <CheckCircle2 className="h-5 w-5" />
-              ) : (
-                step.id
-              )}
+              {/* Número arriba - más pequeño */}
+              <span className={cn(
+                "text-[10px] font-medium",
+                status === 'completed' && "text-gray-700",
+                status === 'current' && "text-gray-900",
+                status === 'pending' && "text-gray-400"
+              )}>
+                {step.id}
+              </span>
+
+              {/* Círculo con check o vacío - más pequeño */}
+              <div className={cn(
+                "w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200",
+                status === 'completed' && "bg-[#10B981]",
+                status === 'current' && "bg-[#4B8BF4]",
+                status === 'pending' && "bg-gray-200 cursor-not-allowed"
+              )}>
+                {status === 'completed' && (
+                  <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
+                )}
+              </div>
             </button>
           );
         })}
-      </div>
-
-      {/* Progress Bar */}
-      <div className="h-1 bg-gray-200">
-        <div
-          className="h-full bg-blue-600 transition-all duration-300 ease-out"
-          style={{ width: `${(currentStep / steps.length) * 100}%` }}
-        />
       </div>
     </div>
   );
@@ -86,8 +90,8 @@ export function WizardProgressMobile({ steps, currentStep, onStepClick }) {
  */
 export function WizardProgressTablet({ steps, currentStep, onStepClick }) {
   return (
-    <aside className="hidden md:block lg:hidden w-12 border-r border-gray-200 bg-gray-50 flex-shrink-0">
-      <div className="sticky top-20 py-4 space-y-2">
+    <aside className="hidden md:block lg:hidden w-14 border-r border-gray-200 bg-gray-50 flex-shrink-0">
+      <div className="sticky top-20 py-4 px-1.5 space-y-2.5">
         {steps.map((step) => {
           const status = getStepStatus(step.id, currentStep);
           return (
@@ -98,20 +102,33 @@ export function WizardProgressTablet({ steps, currentStep, onStepClick }) {
                     onClick={() => onStepClick(step.id)}
                     disabled={status === 'pending'}
                     className={cn(
-                      "w-full h-10 flex items-center justify-center",
-                      "rounded-md transition-all duration-200",
-                      status === 'current' && "bg-green-700 text-white shadow-sm",
-                      status === 'completed' && "bg-green-50 text-green-700 hover:bg-green-100",
-                      status === 'pending' && "text-gray-400 cursor-not-allowed"
+                      "w-full flex flex-col items-center gap-1",
+                      "transition-all duration-200"
                     )}
                     aria-label={step.title}
                     aria-current={status === 'current' ? 'step' : undefined}
                   >
-                    {status === 'completed' ? (
-                      <CheckCircle2 className="h-5 w-5" />
-                    ) : (
-                      <span className="text-sm font-semibold">{step.id}</span>
-                    )}
+                    {/* Número arriba - más pequeño */}
+                    <span className={cn(
+                      "text-[10px] font-medium",
+                      status === 'completed' && "text-gray-700",
+                      status === 'current' && "text-gray-900",
+                      status === 'pending' && "text-gray-400"
+                    )}>
+                      {step.id}
+                    </span>
+
+                    {/* Círculo - más pequeño */}
+                    <div className={cn(
+                      "w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200",
+                      status === 'completed' && "bg-[#10B981]",
+                      status === 'current' && "bg-[#4B8BF4]",
+                      status === 'pending' && "bg-gray-200 cursor-not-allowed"
+                    )}>
+                      {status === 'completed' && (
+                        <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
+                      )}
+                    </div>
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="right" sideOffset={10}>
@@ -138,62 +155,87 @@ export function WizardProgressTablet({ steps, currentStep, onStepClick }) {
  * Se muestra solo en desktop (>= lg)
  */
 export function WizardProgressDesktop({ steps, currentStep, onStepClick }) {
+  const progressPercentage = (currentStep / steps.length) * 100;
+
   return (
     <aside className="hidden lg:block w-[280px] border-r border-gray-200 bg-gray-50 flex-shrink-0">
-      <div className="sticky top-0 py-6 px-4 space-y-1.5 h-screen overflow-y-auto">
-        {steps.map((step) => {
-          const status = getStepStatus(step.id, currentStep);
-          return (
-            <button
-              key={step.id}
-              onClick={() => onStepClick(step.id)}
-              disabled={status === 'pending'}
-              className={cn(
-                "w-full p-2.5 rounded-lg text-left transition-all duration-200",
-                "flex items-center gap-3",
-                status === 'current' && "bg-green-700 text-white shadow-md",
-                status === 'completed' && "bg-green-50 hover:bg-green-100",
-                status === 'pending' && "cursor-not-allowed opacity-60"
-              )}
-              aria-label={step.title}
-              aria-current={status === 'current' ? 'step' : undefined}
-            >
-              {/* Number/Check Circle */}
-              <div className={cn(
-                "flex-shrink-0 w-6 h-6 rounded-full",
-                "flex items-center justify-center text-xs font-bold",
-                status === 'current' && "bg-white text-green-700",
-                status === 'completed' && "bg-green-500 text-white",
-                status === 'pending' && "bg-gray-300 text-gray-600"
-              )}>
-                {status === 'completed' ? (
-                  <CheckCircle2 className="h-4 w-4" />
-                ) : (
-                  step.id
+      <div className="sticky top-0 h-screen overflow-y-auto flex flex-col">
+        {/* Barra de Progreso - Solo en el panel izquierdo, arriba del listado */}
+        <div className="px-4 pt-4 pb-3">
+          <div className="w-full h-1.5 bg-gray-200 rounded-full">
+            <div
+              className="h-full bg-[#10B981] transition-all duration-300 ease-out rounded-full"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Listado de Steps */}
+        <div className="px-4 pb-6 space-y-3">
+          {steps.map((step) => {
+            const status = getStepStatus(step.id, currentStep);
+            return (
+              <button
+                key={step.id}
+                onClick={() => onStepClick(step.id)}
+                disabled={status === 'pending'}
+                className={cn(
+                  "w-full py-2.5 px-2 rounded-lg text-left transition-all duration-200",
+                  "flex items-center gap-2.5",
+                  status === 'current' && "bg-[#EFF6FF]",
+                  status === 'completed' && "hover:bg-gray-100",
+                  status === 'pending' && "cursor-not-allowed opacity-60"
                 )}
-              </div>
-
-              {/* Text Content */}
-              <div className="flex-1 min-w-0">
-                <p className={cn(
-                  "text-sm font-medium truncate",
-                  status === 'current' ? "text-white" : "text-gray-700"
+                aria-label={step.title}
+                aria-current={status === 'current' ? 'step' : undefined}
+              >
+                {/* Círculo con check - MÁS PEQUEÑO */}
+                <div className={cn(
+                  "flex-shrink-0 w-5 h-5 rounded-full",
+                  "flex items-center justify-center transition-all duration-200",
+                  status === 'current' && "bg-[#4B8BF4]",
+                  status === 'completed' && "bg-[#10B981]",
+                  status === 'pending' && "bg-gray-200"
                 )}>
-                  {step.title}
-                </p>
-              </div>
-            </button>
-          );
-        })}
+                  {status === 'completed' && (
+                    <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
+                  )}
+                </div>
 
-        {/* Info Box - Tip del paso actual */}
-        <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-xs text-blue-900 font-medium mb-1">
-            💡 Consejo
-          </p>
-          <p className="text-xs text-blue-800">
-            {steps.find(s => s.id === currentStep)?.tip || "Completa todos los campos requeridos"}
-          </p>
+                {/* Número - Mismo color que el texto */}
+                <span className={cn(
+                  "flex-shrink-0 text-sm font-medium min-w-[1.5rem]",
+                  status === 'completed' && "text-gray-700",
+                  status === 'current' && "text-gray-900",
+                  status === 'pending' && "text-gray-400"
+                )}>
+                  {step.id}.
+                </span>
+
+                {/* Text Content */}
+                <div className="flex-1 min-w-0">
+                  <p className={cn(
+                    "text-sm font-medium truncate",
+                    status === 'completed' && "text-gray-700",
+                    status === 'current' && "text-gray-900",
+                    status === 'pending' && "text-gray-400"
+                  )}>
+                    {step.title}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+
+          {/* Info Box - Tip del paso actual */}
+          <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-xs text-blue-900 font-medium mb-1">
+              💡 Consejo
+            </p>
+            <p className="text-xs text-blue-800">
+              {steps.find(s => s.id === currentStep)?.tip || "Completa todos los campos requeridos"}
+            </p>
+          </div>
         </div>
       </div>
     </aside>

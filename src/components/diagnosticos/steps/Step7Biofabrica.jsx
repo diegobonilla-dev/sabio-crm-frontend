@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { biofabricaSchema } from "@/lib/validations/diagnostico.schema";
-import { Beaker, CheckSquare, FileText, Camera, AlertCircle } from "lucide-react";
+import { CheckSquare, FileText, Camera, AlertCircle } from "lucide-react";
 
 export default function Step7Biofabrica({ data, onChange }) {
   const {
@@ -83,15 +83,6 @@ export default function Step7Biofabrica({ data, onChange }) {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* HEADER */}
-      <div className="text-center pb-4 border-b">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
-          <Beaker className="h-6 w-6 text-indigo-600" />
-          Biofábrica del Cliente
-        </h2>
-        <p className="text-sm text-muted-foreground mt-2">
-          Evaluación de experiencia, procesos actuales y potencial de la biofábrica
-        </p>
-      </div>
 
       {/* SECCIÓN 1: EXPERIENCIA PREVIA Y DIFICULTADES */}
       <Card className="border-orange-200">

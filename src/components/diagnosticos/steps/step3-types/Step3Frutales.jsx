@@ -152,10 +152,6 @@ export default function Step3Frutales({ data, onChange }) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h2 className="text-xl md:text-2xl font-bold">Fertilización y Fumigación - Frutales</h2>
-        <p className="text-sm md:text-base text-gray-600">Información general y manejo diferencial por lote</p>
-      </div>
 
       {/* ========================================== */}
       {/* SECCIÓN A: INFORMACIÓN GENERAL            */}

@@ -124,15 +124,6 @@ export default function Step8Observaciones({ data, onChange }) {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* HEADER */}
-      <div className="text-center pb-4 border-b">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
-          <FileText className="h-6 w-6 text-blue-600" />
-          Observaciones y Seguimiento
-        </h2>
-        <p className="text-sm text-muted-foreground mt-2">
-          Registro de observaciones técnicas, medidas de control, recomendaciones y plan de seguimiento
-        </p>
-      </div>
 
       {/* SECCIÓN 1: OBSERVACIONES TÉCNICAS */}
       <Card className="border-blue-200">

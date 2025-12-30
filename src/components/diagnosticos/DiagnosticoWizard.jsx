@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Save, FileText, Send, Clock } from "lucide-react";
 import { useFinca } from "@/hooks/fincas/useFincas";
 import { useDiagnosticoDraft } from "@/hooks/diagnosticos/useDiagnosticoDraft";
 import { useDiagnosticoMutations } from "@/hooks/diagnosticos/useDiagnosticoMutations";
@@ -14,7 +15,7 @@ import {
   WizardProgressTablet,
   WizardProgressDesktop
 } from "./WizardProgress";
-import { STEPS_CONFIG, TOTAL_STEPS, calculateProgress } from "./wizard-config";
+import { STEPS_CONFIG, TOTAL_STEPS } from "./wizard-config";
 
 // Import step components
 import Step1InformacionGeneral from "./steps/Step1InformacionGeneral";
@@ -25,7 +26,7 @@ import Step5IndicadoresP4G from "./steps/Step5IndicadoresP4G";
 import Step6Sostenibilidad from "./steps/Step6Sostenibilidad";
 import Step7Biofabrica from "./steps/Step7Biofabrica";
 import Step8Observaciones from "./steps/Step8Observaciones";
-// TODO: Import other steps when created
+import Step9ValidacionCierre from "./steps/Step9ValidacionCierre";
 
 export default function DiagnosticoWizard() {
   const searchParams = useSearchParams();
@@ -161,7 +162,13 @@ export default function DiagnosticoWizard() {
             onChange={handleStepChange}
           />
         );
-      // TODO: Add more steps
+      case 9:
+        return (
+          <Step9ValidacionCierre
+            data={formData}
+            onChange={handleStepChange}
+          />
+        );
       default:
         return (
           <div className="text-center py-12">
@@ -220,28 +227,28 @@ export default function DiagnosticoWizard() {
         {/* Content Area - Responsive con estructura flex */}
         <div className="flex-1 min-w-0 flex flex-col">
           {/* Header con info de finca - STICKY en desktop */}
-          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 h-[57px] md:h-[65px]">
-            <div className="px-4 md:px-6 lg:px-8 h-full flex items-center">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+            <div className="px-4 md:px-6 lg:px-8 py-3">
+              <div className="flex items-center justify-between gap-4 w-full">
                 {/* Info de la finca */}
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h1 className="text-lg md:text-xl font-bold text-gray-900 truncate">
                     Diagnóstico: {finca?.nombre || "Cargando..."}
                   </h1>
-                  <p className="text-xs md:text-sm text-gray-600">
-                    Paso {currentStep} de {TOTAL_STEPS} • {calculateProgress(currentStep)}% completado
-                  </p>
                 </div>
 
                 {/* Actions - Desktop only */}
                 <div className="hidden lg:flex gap-2 flex-shrink-0">
                   <Button variant="outline" size="sm">
+                    <Save className="h-4 w-4 mr-1.5" />
                     Guardar Borrador
                   </Button>
                   <Button variant="outline" size="sm">
+                    <FileText className="h-4 w-4 mr-1.5" />
                     Generar PDF
                   </Button>
-                  <Button size="sm">
+                  <Button size="sm" disabled={currentStep < TOTAL_STEPS}>
+                    <Send className="h-4 w-4 mr-1.5" />
                     Enviar para Firma
                   </Button>
                 </div>
@@ -251,12 +258,18 @@ export default function DiagnosticoWizard() {
 
           {/* Step Content - Scrollable con padding bottom para mobile */}
           <div className="flex-1 overflow-y-auto">
-            <div className="px-4 md:px-6 lg:px-8 py-6 lg:py-8 pb-24 md:pb-8">
+            <div className="px-4 md:px-6 lg:px-8 py-6 lg:py-8 pb-40 md:pb-32 lg:pb-20">
               {/* Step Header - Mobile/Tablet */}
               <div className="lg:hidden mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-1">
-                  {currentStepConfig?.title}
-                </h2>
+                <div className="flex items-center justify-between mb-1">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {currentStepConfig?.title}
+                  </h2>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full flex-shrink-0">
+                    <Clock className="h-3 w-3" />
+                    En progreso
+                  </span>
+                </div>
                 {currentStepConfig?.description && (
                   <p className="text-sm text-gray-600">
                     {currentStepConfig.description}
@@ -266,9 +279,15 @@ export default function DiagnosticoWizard() {
 
               {/* Step Header - Desktop */}
               <div className="hidden lg:block mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                  {currentStepConfig?.title}
-                </h2>
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-semibold text-gray-900">
+                    {currentStepConfig?.title}
+                  </h2>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-800 rounded-full flex-shrink-0">
+                    <Clock className="h-3.5 w-3.5" />
+                    En progreso
+                  </span>
+                </div>
                 {currentStepConfig?.description && (
                   <p className="text-gray-600">
                     {currentStepConfig.description}
@@ -344,13 +363,16 @@ export default function DiagnosticoWizard() {
               {/* Actions móviles - Bottom */}
               <div className="lg:hidden mt-6 pt-6 border-t border-gray-200 flex flex-col gap-2">
                 <Button variant="outline" size="sm" className="w-full">
+                  <Save className="h-4 w-4 mr-1.5" />
                   Guardar Borrador
                 </Button>
                 <div className="grid grid-cols-2 gap-2">
                   <Button variant="outline" size="sm">
+                    <FileText className="h-4 w-4 mr-1.5" />
                     Generar PDF
                   </Button>
-                  <Button size="sm">
+                  <Button size="sm" disabled={currentStep < TOTAL_STEPS}>
+                    <Send className="h-4 w-4 mr-1.5" />
                     Enviar Firma
                   </Button>
                 </div>

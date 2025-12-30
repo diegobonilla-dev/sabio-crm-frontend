@@ -704,6 +704,43 @@ export const observacionesSeguimientoSchema = z.object({
   observaciones_productor: z.string().optional()
 });
 
+// ============================================
+// PASO 9: VALIDACIÓN Y CIERRE
+// ============================================
+
+export const validacionCierreSchema = z.object({
+  // Hora de finalización
+  fecha_finalizacion: z.string().optional(),
+  hora_finalizacion: z.string().optional(),
+
+  // Revisión del día a día
+  revision_visita: z.string().min(10, "La revisión debe tener al menos 10 caracteres"),
+
+  // Firmas de validación
+  firma_tecnico: z.object({
+    nombre_completo: z.string().optional(),
+    cedula: z.string().optional(),
+    firma_digital: z.string().optional()
+  }).optional(),
+
+  firma_productor: z.object({
+    nombre_completo: z.string().optional(),
+    cedula: z.string().optional(),
+    firma_digital: z.string().optional()
+  }).optional(),
+
+  // Resumen de validación
+  resumen: z.object({
+    diagnosticos_completos: z.number().optional(),
+    muestras_enviadas: z.number().optional()
+  }).optional(),
+
+  // Aceptación de términos
+  acepta_terminos: z.boolean().refine(val => val === true, {
+    message: "Debe aceptar los términos y condiciones para continuar"
+  })
+});
+
 // SCHEMA PRINCIPAL DE DIAGNÓSTICO
 // ============================================
 
@@ -723,4 +760,5 @@ export const createDiagnosticoSchema = z.object({
   sostenibilidad: sostenibilidadSchema.optional(),
   biofabrica: biofabricaSchema.optional(),
   observaciones_seguimiento: observacionesSeguimientoSchema.optional(),
+  validacion_cierre: validacionCierreSchema.optional(),
 });

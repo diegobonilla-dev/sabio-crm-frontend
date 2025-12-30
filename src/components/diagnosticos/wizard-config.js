@@ -47,7 +47,7 @@ export const STEPS_CONFIG = [
   {
     id: 6,
     title: "Sostenibilidad",
-    description: "Prácticas sostenibles implementadas",
+    description: "Evaluación del conocimiento, experiencia y apertura del productor hacia prácticas sostenibles",
     fraction: "6/9",
     tip: "Documenta las prácticas de sostenibilidad ambiental",
     columns: 2,
@@ -55,7 +55,7 @@ export const STEPS_CONFIG = [
   {
     id: 7,
     title: "Biofábrica del Cliente",
-    description: "Uso de productos biológicos",
+    description: "Evaluación de experiencia, procesos actuales y potencial de la biofábrica",
     fraction: "7/9",
     tip: "Registra el uso de productos biológicos en la finca",
     columns: 2,
@@ -63,7 +63,7 @@ export const STEPS_CONFIG = [
   {
     id: 8,
     title: "Observaciones y Seguimiento",
-    description: "Observaciones técnicas y plan de seguimiento",
+    description: "Registro de observaciones técnicas, medidas de control, recomendaciones y plan de seguimiento",
     fraction: "8/9",
     tip: "Documenta observaciones técnicas, recomendaciones y programa la próxima visita",
     columns: 1,
@@ -71,7 +71,7 @@ export const STEPS_CONFIG = [
   {
     id: 9,
     title: "Validación y Cierre",
-    description: "Revisión final y cierre del diagnóstico",
+    description: "Confirmación final del diagnóstico y validación de la visita técnica",
     fraction: "9/9",
     tip: "Revisa toda la información antes de finalizar",
     columns: 1,

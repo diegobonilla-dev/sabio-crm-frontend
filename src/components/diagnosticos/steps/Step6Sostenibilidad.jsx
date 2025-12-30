@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { sostenibilidadSchema } from "@/lib/validations/diagnostico.schema";
-import { Leaf, Lightbulb, Target, Microscope, Settings } from "lucide-react";
+import { Lightbulb, Target, Microscope, Settings } from "lucide-react";
 
 export default function Step6Sostenibilidad({ data, onChange }) {
   const {
@@ -40,15 +40,6 @@ export default function Step6Sostenibilidad({ data, onChange }) {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* HEADER */}
-      <div className="text-center pb-4 border-b">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
-          <Leaf className="h-6 w-6 text-green-600" />
-          Sostenibilidad y Disposición al Cambio
-        </h2>
-        <p className="text-sm text-muted-foreground mt-2">
-          Evaluación del conocimiento, experiencia y apertura del productor hacia prácticas sostenibles
-        </p>
-      </div>
 
       {/* SECCIÓN 1: CONOCIMIENTO Y EXPERIENCIA */}
       <Card className="border-green-200">
