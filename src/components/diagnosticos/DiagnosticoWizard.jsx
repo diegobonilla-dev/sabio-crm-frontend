@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { useFinca } from "@/hooks/fincas/useFincas";
 import { useDiagnosticoDraftStore } from "@/lib/store/diagnosticoDraftStore";
 import { useDiagnosticoMutations } from "@/hooks/diagnosticos/useDiagnosticoMutations";
 import useAuthStore from "@/app/lib/store";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { collectAllImages } from "@/utils/indexedDB";
 
 // Import wizard components
 import {
@@ -37,9 +39,11 @@ export default function DiagnosticoWizard() {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
 
   const { data: finca } = useFinca(fincaId);
   const { createDiagnostico } = useDiagnosticoMutations();
+  const { uploadSingleImage } = useImageUpload();
 
   // Zustand store para persistencia
   const user = useAuthStore((state) => state.user);
@@ -48,42 +52,102 @@ export default function DiagnosticoWizard() {
   // Cargar draft al montar el componente (solo después de hidratar)
   useEffect(() => {
     if (_hasHydrated && fincaId && user?.id) {
-      const draft = loadDraft(fincaId, user.id);
-      if (draft) {
-        setFormData(draft.formData);
-        setCurrentStep(draft.currentStep);
-      }
+      const loadDraftAsync = async () => {
+        const draft = await loadDraft(fincaId, user.id);
+        if (draft) {
+          setFormData(draft.formData || {});
+          setCurrentStep(draft.currentStep);
+        }
+      };
+      loadDraftAsync();
     }
   }, [_hasHydrated, fincaId, user, loadDraft]);
 
-  // Auto-guardar draft cuando cambian los datos del formulario
+  // Auto-guardar draft cuando cambian los datos del formulario (con debounce)
+  const saveTimeoutRef = useRef(null);
+
   useEffect(() => {
-    if (_hasHydrated && fincaId && user?.id && Object.keys(formData).length > 0) {
-      saveDraft(fincaId, user.id, {
-        formData,
-        currentStep,
-        tipoDiagnostico
-      });
+    if (_hasHydrated && fincaId && user?.id && formData && Object.keys(formData).length > 0) {
+      // Limpiar timeout anterior
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      // Crear nuevo timeout
+      saveTimeoutRef.current = setTimeout(() => {
+        saveDraft(fincaId, user.id, {
+          formData,
+          currentStep,
+          tipoDiagnostico
+        });
+      }, 500); // 500ms de debounce
     }
-  }, [formData, currentStep, fincaId, user, tipoDiagnostico, saveDraft, _hasHydrated]);
+
+    // Cleanup
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData, currentStep, tipoDiagnostico, _hasHydrated]);
 
   const handleStepChange = (data) => {
     setFormData(prev => {
-      // Merge profundo para objetos anidados como datos_ganaderia, datos_frutales, etc.
+      // Merge profundo preservando File objects
       const merged = { ...prev };
 
       Object.keys(data).forEach(key => {
-        if (typeof data[key] === 'object' && !Array.isArray(data[key]) && data[key] !== null) {
-          // Si es un objeto, hacer merge profundo
-          merged[key] = { ...merged[key], ...data[key] };
-        } else {
-          // Si no es objeto, reemplazar directamente
-          merged[key] = data[key];
+        const value = data[key];
+
+        // Si es un File, preservarlo directamente
+        if (value instanceof File) {
+          merged[key] = value;
+        }
+        // Si es un objeto (pero NO File, Array, o null), hacer merge profundo
+        else if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+          // Hacer merge profundo manteniendo Files en objetos anidados
+          merged[key] = mergePreservingFiles(merged[key], value);
+        }
+        // Si es otro tipo, reemplazar directamente
+        else {
+          merged[key] = value;
         }
       });
 
       return merged;
     });
+  };
+
+  // Helper para hacer merge profundo preservando File objects
+  const mergePreservingFiles = (target = {}, source = {}) => {
+    const result = { ...target };
+
+    Object.keys(source).forEach(key => {
+      const sourceValue = source[key];
+
+      // Preservar Files
+      if (sourceValue instanceof File) {
+        result[key] = sourceValue;
+      }
+      // Si ambos son objetos (no Files, no Arrays), hacer merge recursivo
+      else if (
+        sourceValue !== null &&
+        typeof sourceValue === 'object' &&
+        !Array.isArray(sourceValue) &&
+        result[key] !== null &&
+        typeof result[key] === 'object' &&
+        !Array.isArray(result[key])
+      ) {
+        result[key] = mergePreservingFiles(result[key], sourceValue);
+      }
+      // En todos los demás casos, reemplazar
+      else {
+        result[key] = sourceValue;
+      }
+    });
+
+    return result;
   };
 
   const handleStepClick = (stepId) => {
@@ -109,23 +173,111 @@ export default function DiagnosticoWizard() {
     }
   };
 
+  // Helper para establecer valor en path anidado (para reemplazar Files por URLs)
+  const setNestedValue = (obj, path, value) => {
+    const keys = path.split('.');
+    let current = obj;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+      const key = keys[i];
+      const arrayMatch = key.match(/^(.+)\[(\d+)\]$/);
+
+      if (arrayMatch) {
+        const arrayKey = arrayMatch[1];
+        const index = parseInt(arrayMatch[2]);
+        if (!current[arrayKey]) current[arrayKey] = [];
+        if (!current[arrayKey][index]) current[arrayKey][index] = {};
+        current = current[arrayKey][index];
+      } else {
+        if (!current[key]) current[key] = {};
+        current = current[key];
+      }
+    }
+
+    const lastKey = keys[keys.length - 1];
+    current[lastKey] = value;
+  };
+
   const handleSubmit = async () => {
     try {
-      await createDiagnostico.mutateAsync({
+      setUploadError(null);
+
+      // 1. RECOLECTAR TODAS LAS IMÁGENES
+      const imagesMap = collectAllImages(formData);
+      const imagePaths = Object.keys(imagesMap);
+
+      console.log(`📸 Total imágenes a subir: ${imagePaths.length}`);
+
+      // 2. SUBIR IMÁGENES AL IMAGE SERVICE (si hay)
+      let finalFormData = formData;
+
+      if (imagePaths.length > 0) {
+        setIsUploadingImages(true);
+
+        const uploadedImages = {};
+
+        for (let i = 0; i < imagePaths.length; i++) {
+          const path = imagePaths[i];
+          const file = imagesMap[path];
+
+          try {
+            console.log(`📤 Subiendo ${i + 1}/${imagePaths.length}: ${path}`);
+
+            const result = await uploadSingleImage(file, 'diagnosticos');
+
+            uploadedImages[path] = result.url;
+
+            console.log(`✅ Subida exitosa: ${result.url}`);
+          } catch (err) {
+            console.error(`❌ Error subiendo ${path}:`, err);
+            throw new Error(`Error al subir imagen ${i + 1}: ${err.message}`);
+          }
+        }
+
+        // 3. REEMPLAZAR FILES POR URLs
+        finalFormData = JSON.parse(JSON.stringify(formData)); // Deep clone
+
+        Object.entries(uploadedImages).forEach(([path, url]) => {
+          setNestedValue(finalFormData, path, url);
+        });
+
+        setIsUploadingImages(false);
+        console.log('✅ Todas las imágenes subidas');
+      }
+
+      // 4. GUARDAR DIAGNÓSTICO EN BD
+      const payload = {
         finca: fincaId,
         tipo_diagnostico: tipoDiagnostico,
-        ...formData,
+        fecha_visita: finalFormData.informacion_general?.fecha_visita,
+        hora_inicio: finalFormData.informacion_general?.hora_inicio,
+        ...finalFormData,
         estado: 'Completado'
-      });
+      };
 
-      // Eliminar el draft después de guardar exitosamente
+      console.log('📦 Payload a enviar:', JSON.stringify(payload, null, 2));
+
+      await createDiagnostico.mutateAsync(payload);
+
+      console.log('✅ Diagnóstico guardado en BD');
+
+      // 5. ELIMINAR DRAFT (localStorage + IndexedDB)
       if (fincaId && user?.id) {
-        deleteDraft(fincaId, user.id);
+        await deleteDraft(fincaId, user.id);
+        console.log('🗑️ Draft eliminado');
       }
 
       router.push('/fincas/diagnosticos');
+
     } catch (error) {
-      console.error('Error al guardar:', error);
+      console.error('❌ Error al finalizar diagnóstico:', error);
+      console.error('📛 Detalle del error:', error.response?.data);
+
+      setIsUploadingImages(false);
+      setUploadError(error.message);
+
+      // TODO: Agregar toast notification
+      alert(`Error al finalizar diagnóstico: ${error.message}\n\nDetalle: ${JSON.stringify(error.response?.data, null, 2)}`);
     }
   };
 
@@ -352,10 +504,15 @@ export default function DiagnosticoWizard() {
                   ) : (
                     <Button
                       onClick={handleSubmit}
-                      disabled={createDiagnostico.isPending}
+                      disabled={createDiagnostico.isPending || isUploadingImages}
                       className="min-h-[44px]"
                     >
-                      {createDiagnostico.isPending ? "Guardando..." : "Finalizar"}
+                      {isUploadingImages
+                        ? "Subiendo imágenes..."
+                        : createDiagnostico.isPending
+                          ? "Guardando..."
+                          : "Finalizar"
+                      }
                     </Button>
                   )}
                 </div>
@@ -381,9 +538,14 @@ export default function DiagnosticoWizard() {
                   ) : (
                     <Button
                       onClick={handleSubmit}
-                      disabled={createDiagnostico.isPending}
+                      disabled={createDiagnostico.isPending || isUploadingImages}
                     >
-                      {createDiagnostico.isPending ? "Guardando..." : "Finalizar"}
+                      {isUploadingImages
+                        ? "Subiendo imágenes..."
+                        : createDiagnostico.isPending
+                          ? "Guardando..."
+                          : "Finalizar"
+                      }
                     </Button>
                   )}
                 </div>

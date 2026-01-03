@@ -272,10 +272,22 @@ const puntoMuestreoSchema = z.object({
   presencia_micelio_hongos: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
   raices_activas_visibles: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
 
-  // Fotos (strings por ahora)
-  foto_salud_pasto_calidad: z.string().optional(),
-  foto_salud_pasto_raiz: z.string().optional(),
-  foto_perfil_suelo: z.string().optional(),
+  // Fotos (URL string o File object)
+  foto_salud_pasto_calidad: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
+  foto_salud_pasto_raiz: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
+  foto_perfil_suelo: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
 
   // Observaciones
   observaciones_punto: z.string().optional()
@@ -389,9 +401,17 @@ const puntoMuestreoFrutalSchema = z.object({
   // Conductividad eléctrica
   conductividad_electrica: z.coerce.number().min(0).optional(),
 
-  // Fotos (strings por ahora)
-  foto_salud_arbol: z.string().optional(),
-  foto_perfil_suelo: z.string().optional(),
+  // Fotos (URL string o File object)
+  foto_salud_arbol: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
+  foto_perfil_suelo: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
 
   // Observaciones
   observaciones_punto: z.string().optional()
@@ -505,9 +525,17 @@ const puntoMuestreoFloralSchema = z.object({
   // Conductividad eléctrica
   conductividad_electrica: z.coerce.number().min(0).optional(),
 
-  // Fotos (strings por ahora)
-  foto_salud_cultivo: z.string().optional(),
-  foto_perfil_suelo: z.string().optional(),
+  // Fotos (URL string o File object)
+  foto_salud_cultivo: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
+  foto_perfil_suelo: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
 
   // Observaciones
   observaciones_punto: z.string().optional()
@@ -554,6 +582,164 @@ export const manejoCultivoFloresSchema = z.object({
   }).optional(),
   cuantos_bloques_evaluados: z.coerce.number().min(0).optional(),
   bloques_evaluados: z.array(bloqueEvaluadoFloralSchema).optional()
+});
+
+// ============================================
+// PASO 4: MANEJO DE CULTIVO (CAFÉ)
+// ============================================
+
+// Schema para punto de muestreo individual (Café)
+const puntoMuestreoCafeSchema = z.object({
+  coordenada_gps: z.string().optional(),
+  pendiente_porcentaje: z.coerce.number().min(0).max(45).optional(),
+  aspecto_pendiente: z.enum(['N', 'S', 'E', 'O', 'NE', 'NO', 'SE', 'SO']).optional(),
+
+  // VESS
+  vess_colchon_pasto: z.coerce.number().min(1).max(3).optional(),
+  vess_suelo: z.coerce.number().min(1).max(5).optional(),
+
+  // Características del suelo
+  textura_predominante: z.enum(['Arenosa', 'Franca', 'Arcillosa']).optional(),
+  color_predominante: z.enum(['Oscuro', 'Claro', 'Rojizo']).optional(),
+  olor_predominante: z.enum(['Orgánico', 'Áspero', 'Ácido', 'Neutro']).optional(),
+
+  // Compactación
+  penetrometro_200psi_cm: z.coerce.number().min(0).max(90).optional(),
+  nivel_compactacion: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+  evidencia_compactacion_superficial: z.boolean().optional(),
+
+  // Condiciones
+  drenaje: z.enum(['Adecuado', 'Deficiente']).optional(),
+  evidencia_erosion: z.boolean().optional(),
+
+  // Salud del cafeto
+  puntuacion_salud_arbol: z.coerce.number().min(0).max(3).optional(),
+  especies_no_deseadas_presentes: z.boolean().optional(),
+  nivel_especies_no_deseadas: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+  sintomas_estres: z.array(z.string()).optional(),
+
+  // Biodiversidad
+  lombrices_rojas: z.coerce.number().min(0).optional(),
+  lombrices_grises: z.coerce.number().min(0).optional(),
+  lombrices_blancas: z.coerce.number().min(0).optional(),
+  huevos_lombrices: z.coerce.number().min(0).optional(),
+  tipos_diferentes_huevos: z.coerce.number().min(0).optional(),
+  presencia_micelio_hongos: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
+  raices_activas_visibles: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
+
+  // Conductividad eléctrica
+  conductividad_electrica: z.coerce.number().min(0).optional(),
+
+  // Fotos (URL string o File object)
+  foto_salud_arbol: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
+  foto_perfil_suelo: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
+
+  // Observaciones
+  observaciones_punto: z.string().optional()
+});
+
+// Schema para lote evaluado (Café)
+const loteEvaluadoCafeSchema = z.object({
+  nombre_lote: z.string().optional(),
+  area_lote_m2: z.coerce.number().min(0).optional(),
+  coordenadas_gps_centro: z.string().optional(),
+  topografia_general: z.enum(['Plano', 'Inclinación leve', 'Inclinación fuerte']).optional(),
+  puntos_muestreo: z.array(puntoMuestreoCafeSchema).max(9, "Máximo 9 puntos de muestreo").optional(),
+  plagas_enfermedades: z.array(plagaEnfermedadFrutalSchema).optional(),
+  otras_plagas_observadas: z.string().optional()
+});
+
+export const manejoCultivoCafeSchema = z.object({
+  general: z.object({}).optional(),
+  cuantos_lotes_evaluados: z.coerce.number().min(0).optional(),
+  lotes_evaluados: z.array(loteEvaluadoCafeSchema).optional()
+});
+
+// ============================================
+// PASO 4: MANEJO DE CULTIVO (AGUACATE)
+// ============================================
+
+// Schema para punto de muestreo individual (Aguacate)
+const puntoMuestreoAguacateSchema = z.object({
+  coordenada_gps: z.string().optional(),
+  pendiente_porcentaje: z.coerce.number().min(0).max(45).optional(),
+  aspecto_pendiente: z.enum(['N', 'S', 'E', 'O', 'NE', 'NO', 'SE', 'SO']).optional(),
+
+  // VESS
+  vess_colchon_pasto: z.coerce.number().min(1).max(3).optional(),
+  vess_suelo: z.coerce.number().min(1).max(5).optional(),
+
+  // Características del suelo
+  textura_predominante: z.enum(['Arenosa', 'Franca', 'Arcillosa']).optional(),
+  color_predominante: z.enum(['Oscuro', 'Claro', 'Rojizo']).optional(),
+  olor_predominante: z.enum(['Orgánico', 'Áspero', 'Ácido', 'Neutro']).optional(),
+
+  // Compactación
+  penetrometro_200psi_cm: z.coerce.number().min(0).max(90).optional(),
+  nivel_compactacion: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+  evidencia_compactacion_superficial: z.boolean().optional(),
+
+  // Condiciones
+  drenaje: z.enum(['Adecuado', 'Deficiente']).optional(),
+  evidencia_erosion: z.boolean().optional(),
+
+  // Salud del aguacate
+  puntuacion_salud_arbol: z.coerce.number().min(0).max(3).optional(),
+  especies_no_deseadas_presentes: z.boolean().optional(),
+  nivel_especies_no_deseadas: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
+  sintomas_estres: z.array(z.string()).optional(),
+
+  // Biodiversidad
+  lombrices_rojas: z.coerce.number().min(0).optional(),
+  lombrices_grises: z.coerce.number().min(0).optional(),
+  lombrices_blancas: z.coerce.number().min(0).optional(),
+  huevos_lombrices: z.coerce.number().min(0).optional(),
+  tipos_diferentes_huevos: z.coerce.number().min(0).optional(),
+  presencia_micelio_hongos: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
+  raices_activas_visibles: z.enum(['Abundante', 'Moderado', 'Poco', 'Ninguno']).optional(),
+
+  // Conductividad eléctrica
+  conductividad_electrica: z.coerce.number().min(0).optional(),
+
+  // Fotos (URL string o File object)
+  foto_salud_arbol: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
+  foto_perfil_suelo: z.union([
+    z.string().url().optional(),
+    z.instanceof(File).optional(),
+    z.null()
+  ]).optional(),
+
+  // Observaciones
+  observaciones_punto: z.string().optional()
+});
+
+// Schema para lote evaluado (Aguacate)
+const loteEvaluadoAguacateSchema = z.object({
+  nombre_lote: z.string().optional(),
+  area_lote_m2: z.coerce.number().min(0).optional(),
+  coordenadas_gps_centro: z.string().optional(),
+  topografia_general: z.enum(['Plano', 'Inclinación leve', 'Inclinación fuerte']).optional(),
+  puntos_muestreo: z.array(puntoMuestreoAguacateSchema).max(9, "Máximo 9 puntos de muestreo").optional(),
+  plagas_enfermedades: z.array(plagaEnfermedadFrutalSchema).optional(),
+  otras_plagas_observadas: z.string().optional()
+});
+
+export const manejoCultivoAguacateSchema = z.object({
+  general: z.object({}).optional(),
+  cuantos_lotes_evaluados: z.coerce.number().min(0).optional(),
+  lotes_evaluados: z.array(loteEvaluadoAguacateSchema).optional()
 });
 
 // ============================================
@@ -657,7 +843,11 @@ export const biofabricaSchema = z.object({
     nivel_registro: z.enum(['No hay', 'Poco en papel', 'Se monitorea constante', 'Digital']).optional(),
     potencial_escalabilidad: z.enum(['Bajo', 'Medio', 'Alto']).optional(),
     puntos_criticos: z.array(z.enum(['Calidad de agua', 'Tiempo de proceso', 'Calidad de insumos', 'Otros'])).optional(),
-    foto_evidencia: z.string().optional(),
+    foto_evidencia: z.union([
+      z.string().url().optional(),
+      z.instanceof(File).optional(),
+      z.null()
+    ]).optional(),
     video_evidencia: z.string().optional(),
   }).optional(),
 });

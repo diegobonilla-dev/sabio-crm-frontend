@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { observacionesSeguimientoSchema } from "@/lib/validations/diagnostico.schema";
 import { FileText, ClipboardList, Calendar, TestTube, Camera, Plus, Trash2 } from "lucide-react";
+import { useAutoSave } from "@/hooks/useAutoSave";
 
 export default function Step8Observaciones({ data, onChange }) {
   const {
@@ -33,6 +34,7 @@ export default function Step8Observaciones({ data, onChange }) {
 
   // Obtener lotes del Paso 4 (Manejo de Cultivo/Pastoreo)
   const [lotesDisponibles, setLotesDisponibles] = useState([]);
+  const [muestrasInicializadas, setMuestrasInicializadas] = useState(false);
 
   useEffect(() => {
     // Extraer lotes del paso 4 según el tipo de diagnóstico
@@ -61,24 +63,25 @@ export default function Step8Observaciones({ data, onChange }) {
 
     setLotesDisponibles(lotes);
 
-    // Inicializar checkboxes de muestras si no existen
-    if (!formValues.muestras_suelo_lotes || formValues.muestras_suelo_lotes.length === 0) {
+    // Inicializar checkboxes de muestras SOLO UNA VEZ
+    if (!muestrasInicializadas && lotes.length > 0 && (!formValues.muestras_suelo_lotes || formValues.muestras_suelo_lotes.length === 0)) {
       const muestrasIniciales = lotes.map(nombreLote => ({
         nombre_lote: nombreLote,
         seleccionado: false
       }));
       setValue("muestras_suelo_lotes", muestrasIniciales);
+      setMuestrasInicializadas(true);
     }
-  }, [data, formValues.muestras_suelo_lotes, setValue]);
+    // SOLO ejecutar cuando cambia 'data', NO cuando cambia formValues
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   // Auto-guardar cambios en el formulario (con debounce)
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange({ observaciones_seguimiento: formValues });
-    }, 300);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formValues]);
+  useAutoSave(
+    (values) => onChange({ observaciones_seguimiento: values }),
+    formValues,
+    300
+  );
 
   // Funciones para manejar medidas de control
   const agregarMedidaControl = () => {

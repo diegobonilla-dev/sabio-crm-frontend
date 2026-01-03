@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { biofabricaSchema } from "@/lib/validations/diagnostico.schema";
 import { CheckSquare, FileText, Camera, AlertCircle } from "lucide-react";
+import ImageUploadPreview from "@/components/common/ImageUploadPreview";
+import { useAutoSave } from "@/hooks/useAutoSave";
 
 export default function Step7Biofabrica({ data, onChange }) {
   const {
@@ -37,13 +38,11 @@ export default function Step7Biofabrica({ data, onChange }) {
   const puntosCriticosSeleccionados = watch("observaciones.puntos_criticos") || [];
 
   // Auto-guardar cambios en el formulario (con debounce)
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange({ biofabrica: formValues });
-    }, 300);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formValues]);
+  useAutoSave(
+    (values) => onChange({ biofabrica: values }),
+    formValues,
+    300
+  );
 
   // Manejo de checkboxes múltiples para dificultades
   const handleDificultadToggle = (dificultad) => {
@@ -65,19 +64,10 @@ export default function Step7Biofabrica({ data, onChange }) {
     }
   };
 
-  // Manejo de foto (base64)
-  const handleFotoChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setValue("observaciones.foto_evidencia", reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+  // Manejo de foto (File object)
+  const handleFotoChange = (file) => {
+    setValue("observaciones.foto_evidencia", file);
   };
-
-  const fotoPreview = watch("observaciones.foto_evidencia");
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -149,7 +139,7 @@ export default function Step7Biofabrica({ data, onChange }) {
               <Label className="text-sm font-medium">
                 Dificultades encontradas (puede seleccionar varias)
               </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {['Tiempo', 'Costo', 'Insumos', 'Claridad', 'Disciplina', 'Ver resultados'].map((dificultad) => (
                   <div key={dificultad} className="flex items-center space-x-2">
                     <Checkbox
@@ -391,27 +381,13 @@ export default function Step7Biofabrica({ data, onChange }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Foto */}
-              <div>
-                <Label htmlFor="foto_evidencia" className="text-sm">
-                  Foto de evidencia
-                </Label>
-                <Input
-                  id="foto_evidencia"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFotoChange}
-                  className="mt-1"
-                />
-                {fotoPreview && (
-                  <div className="mt-2">
-                    <img
-                      src={fotoPreview}
-                      alt="Preview"
-                      className="w-full h-32 object-cover rounded-lg border"
-                    />
-                  </div>
-                )}
-              </div>
+              <ImageUploadPreview
+                id="foto_evidencia"
+                label="Foto de evidencia del proceso"
+                value={formValues.observaciones?.foto_evidencia}
+                onChange={handleFotoChange}
+                maxSizeMB={10}
+              />
 
               {/* Video (URL) */}
               <div>

@@ -12,7 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { manejoCultivoFloresSchema } from "@/lib/validations/diagnostico.schema";
-import { Plus, Trash2, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Camera } from "lucide-react";
+import ImageUploadPreview from "@/components/common/ImageUploadPreview";
+import { useAutoSave } from "@/hooks/useAutoSave";
 
 /**
  * Paso 4: Manejo de Cultivo - Flores
@@ -75,19 +77,17 @@ export default function Step4Flores({ data, onChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Solo al montar
 
-  // Auto-guardar cambios en el formulario (con debounce)
+  // Auto-guardar cambios en el formulario (con useAutoSave para evitar loops)
   const formValues = watch();
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange({
-        datos_flores: {
-          manejo_cultivo: formValues
-        }
-      });
-    }, 300);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formValues]);
+  useAutoSave(
+    (values) => onChange({
+      datos_flores: {
+        manejo_cultivo: values
+      }
+    }),
+    formValues,
+    300
+  );
 
   // Handlers
   const handleAddEspeciePredominante = () => {
@@ -499,20 +499,17 @@ function BloqueEvaluadoItem({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                type="button"
+              <div
                 onClick={(e) => {
                   e.stopPropagation();
                   if (window.confirm('¿Está seguro de eliminar este bloque?')) {
                     onRemove();
                   }
                 }}
-                size="sm"
-                variant="ghost"
-                className="text-red-600 hover:text-red-700"
+                className="p-2 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 cursor-pointer transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-              </Button>
+              </div>
               {isActive ? (
                 <ChevronUp className="w-5 h-5" />
               ) : (
@@ -733,20 +730,17 @@ function PuntoMuestreoItem({
               📍 Punto {puntoIndex + 1}/{totalPuntos}
             </p>
             <div className="flex items-center gap-2">
-              <Button
-                type="button"
+              <div
                 onClick={(e) => {
                   e.stopPropagation();
                   if (window.confirm('¿Eliminar este punto de muestreo?')) {
                     onRemove();
                   }
                 }}
-                size="sm"
-                variant="ghost"
-                className="text-red-600"
+                className="p-1 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 cursor-pointer transition-colors"
               >
                 <Trash2 className="w-3 h-3" />
-              </Button>
+              </div>
               {isActive ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </div>
           </div>
@@ -1045,7 +1039,6 @@ function PuntoMuestreoItem({
             <FotosPunto
               bloqueIndex={bloqueIndex}
               puntoIndex={puntoIndex}
-              register={register}
               watch={watch}
               setValue={setValue}
             />
@@ -1241,88 +1234,39 @@ function Biodiversidad({ bloqueIndex, puntoIndex, register, watch, setValue }) {
 }
 
 /**
- * Sub-componente: Fotos del Punto
+ * Sub-componente: Fotos del Punto (2 fotos para Flores)
  */
-function FotosPunto({ bloqueIndex, puntoIndex, setValue }) {
-  const [previewCultivo, setPreviewCultivo] = useState(null);
-  const [previewSuelo, setPreviewSuelo] = useState(null);
-
-  const handleFileChange = (e, tipo) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (tipo === 'cultivo') setPreviewCultivo(reader.result);
-        if (tipo === 'suelo') setPreviewSuelo(reader.result);
-
-        // Guardar data URL en el form (temporal, hasta implementar upload real)
-        setValue(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.foto_${tipo === 'cultivo' ? 'salud_cultivo' : 'perfil_suelo'}`, reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+function FotosPunto({ bloqueIndex, puntoIndex, watch, setValue }) {
+  const foto_salud_cultivo = watch(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.foto_salud_cultivo`);
+  const foto_perfil_suelo = watch(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.foto_perfil_suelo`);
 
   return (
-    <div className="space-y-4 p-4 bg-slate-50 rounded-lg border">
-      <h5 className="font-medium">Fotografías del Punto</h5>
-      <p className="text-xs text-muted-foreground">
-        ⚠️ Las fotos se guardan localmente por ahora (próximamente: upload a servidor)
-      </p>
+    <div className="mt-6 border-t pt-6">
+      <h5 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <Camera className="h-4 w-4" />
+        Evidencia Fotográfica
+      </h5>
 
-      {/* Foto 1: Salud del cultivo */}
-      <div>
-        <Label>Foto salud del cultivo</Label>
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileChange(e, 'cultivo')}
-          className="mt-1"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ImageUploadPreview
+          id={`foto_cultivo_${bloqueIndex}_${puntoIndex}`}
+          label="Foto: Salud del cultivo"
+          value={foto_salud_cultivo}
+          onChange={(file) => {
+            setValue(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.foto_salud_cultivo`, file);
+          }}
+          maxSizeMB={10}
         />
-        {previewCultivo && (
-          <div className="mt-2 relative">
-            <img src={previewCultivo} alt="Preview cultivo" className="w-full max-w-xs rounded-lg border" />
-            <Button
-              type="button"
-              size="icon"
-              variant="destructive"
-              className="absolute top-2 right-2"
-              onClick={() => {
-                setPreviewCultivo(null);
-                setValue(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.foto_salud_cultivo`, '');
-              }}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-      </div>
 
-      {/* Foto 2: Perfil del suelo */}
-      <div>
-        <Label>Foto perfil del suelo</Label>
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileChange(e, 'suelo')}
-          className="mt-1"
+        <ImageUploadPreview
+          id={`foto_suelo_${bloqueIndex}_${puntoIndex}`}
+          label="Foto: Perfil del suelo"
+          value={foto_perfil_suelo}
+          onChange={(file) => {
+            setValue(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.foto_perfil_suelo`, file);
+          }}
+          maxSizeMB={10}
         />
-        {previewSuelo && (
-          <div className="mt-2 relative">
-            <img src={previewSuelo} alt="Preview suelo" className="w-full max-w-xs rounded-lg border" />
-            <Button
-              type="button"
-              size="icon"
-              variant="destructive"
-              className="absolute top-2 right-2"
-              onClick={() => {
-                setPreviewSuelo(null);
-                setValue(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.foto_perfil_suelo`, '');
-              }}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

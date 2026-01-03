@@ -12,7 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { manejoCultivoFrutalesSchema } from "@/lib/validations/diagnostico.schema";
-import { Plus, Trash2, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, CheckCircle2, AlertCircle, Camera } from "lucide-react";
+import ImageUploadPreview from "@/components/common/ImageUploadPreview";
+import { useAutoSave } from "@/hooks/useAutoSave";
 
 /**
  * Paso 4: Manejo de Cultivo - Frutales
@@ -75,19 +77,17 @@ export default function Step4Frutales({ data, onChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Solo al montar
 
-  // Auto-guardar cambios en el formulario (con debounce)
+  // Auto-guardar cambios en el formulario (con useAutoSave para evitar loops)
   const formValues = watch();
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange({
-        datos_frutales: {
-          manejo_cultivo: formValues
-        }
-      });
-    }, 300);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formValues]);
+  useAutoSave(
+    (values) => onChange({
+      datos_frutales: {
+        manejo_cultivo: values
+      }
+    }),
+    formValues,
+    300
+  );
 
   // Handlers
   const handleAddEspeciePredominante = () => {
@@ -508,20 +508,17 @@ function LoteEvaluadoItem({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                type="button"
+              <div
                 onClick={(e) => {
                   e.stopPropagation();
                   if (window.confirm('¿Está seguro de eliminar este lote?')) {
                     onRemove();
                   }
                 }}
-                size="sm"
-                variant="ghost"
-                className="text-red-600 hover:text-red-700"
+                className="p-2 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 cursor-pointer transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
-              </Button>
+              </div>
               {isActive ? (
                 <ChevronUp className="w-5 h-5" />
               ) : (
@@ -891,20 +888,17 @@ function PuntoMuestreoItem({
               📍 Punto {puntoIndex + 1}/{totalPuntos}
             </p>
             <div className="flex items-center gap-2">
-              <Button
-                type="button"
+              <div
                 onClick={(e) => {
                   e.stopPropagation();
                   if (window.confirm('¿Eliminar este punto de muestreo?')) {
                     onRemove();
                   }
                 }}
-                size="sm"
-                variant="ghost"
-                className="text-red-600"
+                className="p-1 rounded-md hover:bg-red-50 text-red-600 hover:text-red-700 cursor-pointer transition-colors"
               >
                 <Trash2 className="w-3 h-3" />
-              </Button>
+              </div>
               {isActive ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </div>
           </div>
@@ -1203,7 +1197,6 @@ function PuntoMuestreoItem({
             <FotosPunto
               loteIndex={loteIndex}
               puntoIndex={puntoIndex}
-              register={register}
               watch={watch}
               setValue={setValue}
             />
@@ -1401,86 +1394,37 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
 /**
  * Sub-componente: Fotos del Punto (2 fotos para Frutales)
  */
-function FotosPunto({ loteIndex, puntoIndex, setValue }) {
-  const [previewArbol, setPreviewArbol] = useState(null);
-  const [previewSuelo, setPreviewSuelo] = useState(null);
-
-  const handleFileChange = (e, tipo) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (tipo === 'arbol') setPreviewArbol(reader.result);
-        if (tipo === 'suelo') setPreviewSuelo(reader.result);
-
-        // Guardar data URL en el form (temporal, hasta implementar upload real)
-        setValue(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.foto_${tipo === 'arbol' ? 'salud_arbol' : 'perfil_suelo'}`, reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+function FotosPunto({ loteIndex, puntoIndex, watch, setValue }) {
+  const foto_salud_arbol = watch(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.foto_salud_arbol`);
+  const foto_perfil_suelo = watch(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.foto_perfil_suelo`);
 
   return (
-    <div className="space-y-4 p-4 bg-slate-50 rounded-lg border">
-      <h5 className="font-medium">Fotografías del Punto</h5>
-      <p className="text-xs text-muted-foreground">
-        ⚠️ Las fotos se guardan localmente por ahora (próximamente: upload a servidor)
-      </p>
+    <div className="mt-6 border-t pt-6">
+      <h5 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <Camera className="h-4 w-4" />
+        Evidencia Fotográfica
+      </h5>
 
-      {/* Foto 1: Salud del árbol */}
-      <div>
-        <Label>Foto salud del árbol</Label>
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileChange(e, 'arbol')}
-          className="mt-1"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ImageUploadPreview
+          id={`foto_arbol_${loteIndex}_${puntoIndex}`}
+          label="Foto: Salud del árbol"
+          value={foto_salud_arbol}
+          onChange={(file) => {
+            setValue(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.foto_salud_arbol`, file);
+          }}
+          maxSizeMB={10}
         />
-        {previewArbol && (
-          <div className="mt-2 relative">
-            <img src={previewArbol} alt="Preview árbol" className="w-full max-w-xs rounded-lg border" />
-            <Button
-              type="button"
-              size="icon"
-              variant="destructive"
-              className="absolute top-2 right-2"
-              onClick={() => {
-                setPreviewArbol(null);
-                setValue(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.foto_salud_arbol`, '');
-              }}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-      </div>
 
-      {/* Foto 2: Perfil del suelo */}
-      <div>
-        <Label>Foto perfil del suelo</Label>
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileChange(e, 'suelo')}
-          className="mt-1"
+        <ImageUploadPreview
+          id={`foto_suelo_${loteIndex}_${puntoIndex}`}
+          label="Foto: Perfil del suelo"
+          value={foto_perfil_suelo}
+          onChange={(file) => {
+            setValue(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.foto_perfil_suelo`, file);
+          }}
+          maxSizeMB={10}
         />
-        {previewSuelo && (
-          <div className="mt-2 relative">
-            <img src={previewSuelo} alt="Preview suelo" className="w-full max-w-xs rounded-lg border" />
-            <Button
-              type="button"
-              size="icon"
-              variant="destructive"
-              className="absolute top-2 right-2"
-              onClick={() => {
-                setPreviewSuelo(null);
-                setValue(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.foto_perfil_suelo`, '');
-              }}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

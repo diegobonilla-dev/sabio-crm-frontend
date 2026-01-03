@@ -15,6 +15,13 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import {
+  saveImagesToIndexedDB,
+  loadImagesFromIndexedDB,
+  deleteImagesFromIndexedDB,
+  collectAllImages,
+  restoreImagesInFormData
+} from '@/utils/indexedDB';
 
 /**
  * Calcula el porcentaje de completitud de un objeto de datos
@@ -66,6 +73,30 @@ const generateDraftId = (fincaId, userId) => {
 };
 
 /**
+ * Remueve recursivamente todos los File objects de un objeto
+ * Los reemplaza por null para mantener la estructura
+ */
+const removeFilesFromObject = (obj) => {
+  if (obj instanceof File) {
+    return null; // Reemplazar File por null
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => removeFilesFromObject(item));
+  }
+
+  if (obj !== null && typeof obj === 'object') {
+    const result = {};
+    Object.keys(obj).forEach(key => {
+      result[key] = removeFilesFromObject(obj[key]);
+    });
+    return result;
+  }
+
+  return obj;
+};
+
+/**
  * Store principal de drafts de diagnósticos
  */
 export const useDiagnosticoDraftStore = create(
@@ -108,16 +139,35 @@ export const useDiagnosticoDraftStore = create(
        * @param {string} userId - ID del usuario
        * @returns {object|null} - Draft data o null
        */
-      loadDraft: (fincaId, userId) => {
+      loadDraft: async (fincaId, userId) => {
         const draftId = generateDraftId(fincaId, userId);
         const { drafts } = get();
 
         const draft = drafts[draftId];
 
         if (draft) {
-          // Actualizar el draft activo
+          // 1. CARGAR IMÁGENES DESDE INDEXEDDB
+          let formData = draft.formData;
+
+          if (draft.hasImages) {
+            try {
+              const images = await loadImagesFromIndexedDB(draftId);
+              if (images) {
+                formData = restoreImagesInFormData(draft.formData, images);
+                console.log(`📂 ${Object.keys(images).length} imágenes restauradas desde IndexedDB`);
+              }
+            } catch (error) {
+              console.error('Error cargando imágenes desde IndexedDB:', error);
+            }
+          }
+
+          // 2. ACTUALIZAR DRAFT ACTIVO
           set({ activeDraftId: draftId });
-          return draft;
+
+          return {
+            ...draft,
+            formData // Con imágenes restauradas
+          };
         }
 
         return null;
@@ -132,21 +182,37 @@ export const useDiagnosticoDraftStore = create(
        * @param {number} draftData.currentStep - Paso actual del wizard
        * @param {string} draftData.tipoDiagnostico - Tipo de diagnóstico
        */
-      saveDraft: (fincaId, userId, draftData) => {
+      saveDraft: async (fincaId, userId, draftData) => {
         const draftId = generateDraftId(fincaId, userId);
         const { formData, currentStep, tipoDiagnostico } = draftData;
 
-        // Calcular completitud
-        const { filled, total } = calculateCompleteness(formData);
+        // 1. SEPARAR IMÁGENES DEL RESTO DE DATOS
+        const allImages = collectAllImages(formData);
+        const formDataWithoutFiles = removeFilesFromObject(formData);
+
+        // 2. GUARDAR IMÁGENES EN INDEXEDDB
+        if (Object.keys(allImages).length > 0) {
+          try {
+            await saveImagesToIndexedDB(draftId, allImages);
+            console.log(`💾 ${Object.keys(allImages).length} imágenes guardadas en IndexedDB`);
+          } catch (error) {
+            console.error('Error guardando imágenes en IndexedDB:', error);
+          }
+        }
+
+        // 3. CALCULAR COMPLETITUD (sin contar Files)
+        const { filled, total } = calculateCompleteness(formDataWithoutFiles);
         const completenessPercent = total > 0 ? Math.round((filled / total) * 100) : 0;
 
-        // Crear el objeto del draft
+        // 4. GUARDAR EN LOCALSTORAGE (sin Files)
         const draft = {
           fincaId,
           userId,
           tipoDiagnostico,
           currentStep,
-          formData,
+          formData: formDataWithoutFiles, // SIN FILES
+          hasImages: Object.keys(allImages).length > 0,
+          imageCount: Object.keys(allImages).length,
           lastSaved: new Date().toISOString(),
           completeness: completenessPercent,
           _metadata: {
@@ -173,9 +239,18 @@ export const useDiagnosticoDraftStore = create(
        * @param {string} fincaId - ID de la finca
        * @param {string} userId - ID del usuario
        */
-      deleteDraft: (fincaId, userId) => {
+      deleteDraft: async (fincaId, userId) => {
         const draftId = generateDraftId(fincaId, userId);
 
+        // 1. ELIMINAR IMÁGENES DE INDEXEDDB
+        try {
+          await deleteImagesFromIndexedDB(draftId);
+          console.log('🗑️ Imágenes eliminadas de IndexedDB');
+        } catch (error) {
+          console.error('Error eliminando imágenes de IndexedDB:', error);
+        }
+
+        // 2. ELIMINAR DRAFT DE LOCALSTORAGE
         set((state) => {
           const newDrafts = { ...state.drafts };
           delete newDrafts[draftId];
