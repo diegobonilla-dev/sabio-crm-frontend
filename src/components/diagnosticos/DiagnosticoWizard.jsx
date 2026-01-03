@@ -200,8 +200,6 @@ export default function DiagnosticoWizard() {
 
   const handleSubmit = async () => {
     try {
-      setUploadError(null);
-
       // 1. RECOLECTAR TODAS LAS IMÁGENES
       const imagesMap = collectAllImages(formData);
       const imagePaths = Object.keys(imagesMap);
@@ -274,7 +272,6 @@ export default function DiagnosticoWizard() {
       console.error('📛 Detalle del error:', error.response?.data);
 
       setIsUploadingImages(false);
-      setUploadError(error.message);
 
       // TODO: Agregar toast notification
       alert(`Error al finalizar diagnóstico: ${error.message}\n\nDetalle: ${JSON.stringify(error.response?.data, null, 2)}`);
