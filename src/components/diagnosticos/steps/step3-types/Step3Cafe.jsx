@@ -22,6 +22,9 @@ import { Plus, Trash2, ChevronDown, ChevronUp, CheckCircle2, AlertCircle } from 
 export default function Step3Cafe({ data, onChange }) {
   const [activeLoteIndex, setActiveLoteIndex] = useState(null);
 
+  // Clase CSS para ocultar spin buttons en inputs numéricos
+  const numberInputClass = "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
   const {
     register,
     control,
@@ -207,7 +210,9 @@ export default function Step3Cafe({ data, onChange }) {
                     id="costo_ultimo_ano"
                     type="number"
                     step="0.01"
+                    min="0"
                     placeholder="0"
+                    className={numberInputClass}
                     {...register("general.costo_ultimo_ano_fertilizacion")}
                   />
                 </div>
@@ -290,9 +295,10 @@ export default function Step3Cafe({ data, onChange }) {
                         <Input
                           type="number"
                           step="0.01"
+                          min="0"
                           placeholder="0"
                           {...register(`general.productos_quimicos.${index}.bultos_por_ha`)}
-                          className="text-sm"
+                          className={`text-sm ${numberInputClass}`}
                         />
                       </div>
 
@@ -320,9 +326,10 @@ export default function Step3Cafe({ data, onChange }) {
                         <Input
                           type="number"
                           step="0.01"
+                          min="0"
                           placeholder="0"
                           {...register(`general.productos_quimicos.${index}.costo_por_bulto`)}
-                          className="text-sm mt-1"
+                          className={`text-sm mt-1 ${numberInputClass}`}
                         />
                         <p className="text-xs text-pink-700 mt-1">🟣 Consultar: ¿Base de datos de precios?</p>
                       </div>
@@ -380,8 +387,9 @@ export default function Step3Cafe({ data, onChange }) {
                     <Input
                       type="number"
                       step="0.01"
+                      min="0"
                       placeholder="0"
-                      className="flex-1"
+                      className={`flex-1 ${numberInputClass}`}
                       {...register("general.costo_abono_organico")}
                     />
                     <Select
@@ -506,7 +514,9 @@ export default function Step3Cafe({ data, onChange }) {
                   <Input
                     type="number"
                     step="0.01"
+                    min="0"
                     placeholder="0"
+                    className={numberInputClass}
                     {...register("general.costo_anual_venenos")}
                   />
                 </div>
@@ -590,8 +600,9 @@ export default function Step3Cafe({ data, onChange }) {
                           <Input
                             type="number"
                             step="0.01"
+                            min="0"
                             placeholder="0"
-                            className="flex-1 text-sm"
+                            className={`flex-1 text-sm ${numberInputClass}`}
                             {...register(`general.insecticidas.${index}.dosis`)}
                           />
                           <Select
@@ -639,9 +650,10 @@ export default function Step3Cafe({ data, onChange }) {
                     <Input
                       type="number"
                       step="0.01"
+                      min="0"
                       placeholder="0"
                       {...register("general.fungicida.dosis")}
-                      className="text-sm"
+                      className={`text-sm ${numberInputClass}`}
                     />
                   </div>
                 </div>
@@ -672,9 +684,10 @@ export default function Step3Cafe({ data, onChange }) {
                     <Input
                       type="number"
                       step="0.01"
+                      min="0"
                       placeholder="0"
                       {...register("general.coadyuvante.dosis")}
-                      className="text-sm"
+                      className={`text-sm ${numberInputClass}`}
                     />
                   </div>
                 </div>
@@ -701,7 +714,9 @@ export default function Step3Cafe({ data, onChange }) {
                   <Label>Rotación sugerida (días)</Label>
                   <Input
                     type="number"
+                    min="0"
                     placeholder="0"
+                    className={numberInputClass}
                     {...register("general.rotacion_dias")}
                   />
                 </div>
@@ -751,7 +766,7 @@ export default function Step3Cafe({ data, onChange }) {
                 id="cuantos_lotes_diferenciados"
                 type="number"
                 min="0"
-                className="mt-2 max-w-xs"
+                className={`mt-2 max-w-xs ${numberInputClass}`}
                 {...register("cuantos_lotes_diferenciados")}
               />
               <p className="text-xs text-gray-500 mt-1">
