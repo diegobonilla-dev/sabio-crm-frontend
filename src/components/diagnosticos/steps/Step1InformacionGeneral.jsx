@@ -252,6 +252,8 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
             id="area_total"
             type="number"
             step="0.01"
+            min="0"
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             {...register("area_total")}
           />
         </div>
@@ -263,6 +265,8 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
             id="area_dedicada"
             type="number"
             step="0.01"
+            min="0"
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             {...register("area_dedicada")}
           />
         </div>
@@ -274,6 +278,8 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
             id="area_reserva"
             type="number"
             step="0.01"
+            min="0"
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             {...register("area_reserva")}
           />
         </div>
@@ -284,6 +290,8 @@ export default function Step1InformacionGeneral({ data, finca, onChange }) {
           <Input
             id="numero_divisiones"
             type="number"
+            min="0"
+            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             {...register("numero_divisiones")}
           />
         </div>
