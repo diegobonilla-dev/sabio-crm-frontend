@@ -14,6 +14,9 @@ import { Plus, Trash2, ChevronDown, ChevronUp, CheckCircle2, AlertCircle } from 
 export default function Step2Ganaderia({ data, onChange }) {
   const [activeLoteIndex, setActiveLoteIndex] = useState(null);
 
+  // Clase CSS para ocultar spin buttons en inputs numéricos
+  const numberInputClass = "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
   const {
     register,
     control,
@@ -106,7 +109,7 @@ export default function Step2Ganaderia({ data, onChange }) {
           id="cuantos_lotes_alta_produccion"
           type="number"
           min="0"
-          className="mt-2 max-w-xs"
+          className={`mt-2 max-w-xs ${numberInputClass}`}
           {...register("cuantos_lotes_alta_produccion")}
         />
         <p className="text-xs text-gray-500 mt-1">
@@ -237,8 +240,9 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
             <Input
               type="number"
               step="0.01"
+              min="0"
               placeholder="0"
-              className="flex-1"
+              className={`flex-1 ${numberInputClass}`}
               {...register(`lotes.${index}.total_litros`)}
             />
             <Select
@@ -263,7 +267,9 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
             id={`total_305_${index}`}
             type="number"
             step="0.01"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.total_litros_305_dias`)}
           />
         </div>
@@ -274,7 +280,9 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
           <Input
             id={`vacas_${index}`}
             type="number"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.numero_vacas_ordeno`)}
           />
         </div>
@@ -286,7 +294,9 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
             id={`precio_leche_${index}`}
             type="number"
             step="0.01"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.precio_venta_leche`)}
           />
         </div>
@@ -298,7 +308,9 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
             id={`concentrado_${index}`}
             type="number"
             step="0.01"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.concentrado_total_kg_dia`)}
           />
         </div>
@@ -310,7 +322,9 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
             id={`precio_concentrado_${index}`}
             type="number"
             step="0.01"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.precio_concentrado_kg`)}
           />
         </div>
@@ -370,7 +384,9 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
             id={`peso_${index}`}
             type="number"
             step="0.01"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.peso_promedio_vaca`)}
           />
         </div>
@@ -449,9 +465,10 @@ function SuplementosArray({ loteIndex, control, register, errors }) {
                 id={`suplemento_kg_${loteIndex}_${supIndex}`}
                 type="number"
                 step="0.01"
+                min="0"
                 placeholder="0"
+                className={`text-sm ${numberInputClass}`}
                 {...register(`lotes.${loteIndex}.suplementos.${supIndex}.kgDia`)}
-                className="text-sm"
               />
             </div>
 
@@ -464,9 +481,10 @@ function SuplementosArray({ loteIndex, control, register, errors }) {
                 id={`suplemento_precio_${loteIndex}_${supIndex}`}
                 type="number"
                 step="0.01"
+                min="0"
                 placeholder="0"
+                className={`text-sm ${numberInputClass}`}
                 {...register(`lotes.${loteIndex}.suplementos.${supIndex}.precioKg`)}
-                className="text-sm"
               />
             </div>
           </div>
@@ -549,8 +567,8 @@ function MateriaSecaArray({ loteIndex, control, register, errors }) {
                 min="0"
                 max="100"
                 placeholder="0"
+                className={`text-sm ${numberInputClass}`}
                 {...register(`lotes.${loteIndex}.materia_seca.${msIndex}.porcentaje`)}
-                className="text-sm"
               />
               {errors?.lotes?.[loteIndex]?.materia_seca?.[msIndex]?.porcentaje && (
                 <p className="text-xs text-destructive">

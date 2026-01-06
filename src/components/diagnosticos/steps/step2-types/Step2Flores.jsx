@@ -13,6 +13,9 @@ import { Plus, Trash2, ChevronDown, ChevronUp, CheckCircle2, AlertCircle } from 
 export default function Step2Flores({ data, onChange }) {
   const [activeBloqueIndex, setActiveBloqueIndex] = useState(null);
 
+  // Clase CSS para ocultar spin buttons en inputs numéricos
+  const numberInputClass = "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
   const {
     register,
     control,
@@ -102,7 +105,7 @@ export default function Step2Flores({ data, onChange }) {
           id="cuantos_bloques_productivos"
           type="number"
           min="0"
-          className="mt-2 max-w-xs"
+          className={`mt-2 max-w-xs ${numberInputClass}`}
           {...register("cuantos_bloques_productivos")}
         />
         <p className="text-xs text-gray-500 mt-1">
@@ -172,6 +175,7 @@ export default function Step2Flores({ data, onChange }) {
                       register={register}
                       control={control}
                       errors={errors}
+                      numberInputClass={numberInputClass}
                     />
                   </div>
                 </CollapsibleContent>
@@ -204,7 +208,7 @@ export default function Step2Flores({ data, onChange }) {
 // ============================================
 // COMPONENTE: Formulario de un bloque floral
 // ============================================
-function BloqueFloralForm({ index, register, control, errors }) {
+function BloqueFloralForm({ index, register, control, errors, numberInputClass }) {
   return (
     <div className="space-y-6">
       {/* Grid principal: 2 columnas en desktop */}
@@ -229,7 +233,9 @@ function BloqueFloralForm({ index, register, control, errors }) {
             id={`tallos_${index}`}
             type="number"
             step="1"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`bloques.${index}.tallos_cosechados`)}
           />
         </div>
@@ -244,6 +250,7 @@ function BloqueFloralForm({ index, register, control, errors }) {
             min="0"
             max="100"
             placeholder="0"
+            className={numberInputClass}
             {...register(`bloques.${index}.porcentaje_exportacion`)}
           />
         </div>
@@ -255,7 +262,9 @@ function BloqueFloralForm({ index, register, control, errors }) {
             id={`ciclo_${index}`}
             type="number"
             step="0.1"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`bloques.${index}.tiempo_ciclo_cosecha`)}
           />
         </div>
@@ -270,6 +279,7 @@ function BloqueFloralForm({ index, register, control, errors }) {
             min="0"
             max="100"
             placeholder="0"
+            className={numberInputClass}
             {...register(`bloques.${index}.tasa_descarte`)}
           />
         </div>
@@ -285,8 +295,9 @@ function BloqueFloralForm({ index, register, control, errors }) {
             id={`precio_${index}`}
             type="number"
             step="0.01"
+            min="0"
             placeholder="0"
-            className="border-pink-300 focus:border-pink-500 focus:ring-pink-500"
+            className={`border-pink-300 focus:border-pink-500 focus:ring-pink-500 ${numberInputClass}`}
             {...register(`bloques.${index}.precio_venta_kg`)}
           />
           <p className="text-xs text-pink-600 mt-1">
@@ -301,6 +312,7 @@ function BloqueFloralForm({ index, register, control, errors }) {
         control={control}
         register={register}
         errors={errors}
+        numberInputClass={numberInputClass}
       />
 
       {/* Subtítulo: Indicadores Económicos */}
@@ -317,7 +329,9 @@ function BloqueFloralForm({ index, register, control, errors }) {
               id={`costo_tallo_${index}`}
               type="number"
               step="0.01"
+              min="0"
               placeholder="0"
+              className={numberInputClass}
               {...register(`bloques.${index}.costo_por_tallo`)}
             />
           </div>
@@ -329,7 +343,9 @@ function BloqueFloralForm({ index, register, control, errors }) {
               id={`ingreso_${index}`}
               type="number"
               step="0.01"
+              min="0"
               placeholder="0"
+              className={numberInputClass}
               {...register(`bloques.${index}.ingreso_neto_m2`)}
             />
           </div>
@@ -344,6 +360,7 @@ function BloqueFloralForm({ index, register, control, errors }) {
               min="0"
               max="100"
               placeholder="0"
+              className={numberInputClass}
               {...register(`bloques.${index}.porcentaje_costos_variables`)}
             />
           </div>
@@ -355,7 +372,9 @@ function BloqueFloralForm({ index, register, control, errors }) {
               id={`prod_mano_${index}`}
               type="number"
               step="0.01"
+              min="0"
               placeholder="0"
+              className={numberInputClass}
               {...register(`bloques.${index}.productividad_mano_obra`)}
             />
           </div>
@@ -368,7 +387,7 @@ function BloqueFloralForm({ index, register, control, errors }) {
 // ============================================
 // COMPONENTE: Array dinámico de Nutrientes
 // ============================================
-function NutrientesArray({ bloqueIndex, control, register, errors }) {
+function NutrientesArray({ bloqueIndex, control, register, errors, numberInputClass }) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: `bloques.${bloqueIndex}.nutrientes`
@@ -435,9 +454,10 @@ function NutrientesArray({ bloqueIndex, control, register, errors }) {
                 id={`nutriente_cantidad_${bloqueIndex}_${nutIndex}`}
                 type="number"
                 step="0.01"
+                min="0"
                 placeholder="0"
+                className={`text-sm ${numberInputClass}`}
                 {...register(`bloques.${bloqueIndex}.nutrientes.${nutIndex}.cantidad`)}
-                className="text-sm"
               />
             </div>
 
@@ -450,9 +470,10 @@ function NutrientesArray({ bloqueIndex, control, register, errors }) {
                 id={`nutriente_valor_${bloqueIndex}_${nutIndex}`}
                 type="number"
                 step="0.01"
+                min="0"
                 placeholder="0"
+                className={`text-sm ${numberInputClass}`}
                 {...register(`bloques.${bloqueIndex}.nutrientes.${nutIndex}.valor`)}
-                className="text-sm"
               />
             </div>
           </div>

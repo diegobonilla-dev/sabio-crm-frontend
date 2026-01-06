@@ -15,6 +15,9 @@ import { Plus, Trash2, ChevronDown, ChevronUp, CheckCircle2, AlertCircle } from 
 export default function Step2Frutales({ data, onChange }) {
   const [activeLoteIndex, setActiveLoteIndex] = useState(null);
 
+  // Clase CSS para ocultar spin buttons en inputs numéricos
+  const numberInputClass = "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
   const {
     register,
     control,
@@ -106,7 +109,7 @@ export default function Step2Frutales({ data, onChange }) {
           id="cuantos_lotes_productivos"
           type="number"
           min="0"
-          className="mt-2 max-w-xs"
+          className={`mt-2 max-w-xs ${numberInputClass}`}
           {...register("cuantos_lotes_productivos")}
         />
         <p className="text-xs text-gray-500 mt-1">
@@ -177,6 +180,7 @@ export default function Step2Frutales({ data, onChange }) {
                       setValue={setValue}
                       watch={watch}
                       errors={errors}
+                      numberInputClass={numberInputClass}
                     />
                   </div>
                 </CollapsibleContent>
@@ -209,7 +213,7 @@ export default function Step2Frutales({ data, onChange }) {
 // ============================================
 // COMPONENTE: Formulario de un lote frutal
 // ============================================
-function LoteFrutalForm({ index, register, setValue, watch, errors }) {
+function LoteFrutalForm({ index, register, setValue, watch, errors, numberInputClass }) {
   return (
     <div className="space-y-4">
       {/* Grid responsive: 1 col en mobile, 2 cols en tablet/desktop */}
@@ -234,7 +238,9 @@ function LoteFrutalForm({ index, register, setValue, watch, errors }) {
             id={`arboles_${index}`}
             type="number"
             step="1"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.arboles_por_ha`)}
           />
         </div>
@@ -246,7 +252,9 @@ function LoteFrutalForm({ index, register, setValue, watch, errors }) {
             id={`edad_siembra_${index}`}
             type="number"
             step="0.1"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.edad_siembra`)}
           />
         </div>
@@ -258,7 +266,9 @@ function LoteFrutalForm({ index, register, setValue, watch, errors }) {
             id={`edad_produccion_${index}`}
             type="number"
             step="0.1"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.edad_produccion`)}
           />
         </div>
@@ -294,7 +304,9 @@ function LoteFrutalForm({ index, register, setValue, watch, errors }) {
                 id={`rendimiento_${index}`}
                 type="number"
                 step="0.01"
+                min="0"
                 placeholder="0"
+                className={numberInputClass}
                 {...register(`lotes.${index}.rendimiento_ha`)}
               />
             </div>
@@ -330,7 +342,9 @@ function LoteFrutalForm({ index, register, setValue, watch, errors }) {
             id={`prod_arbol_${index}`}
             type="number"
             step="0.01"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.produccion_promedio_arbol`)}
           />
           <p className="text-xs text-gray-500 mt-1">
@@ -348,6 +362,7 @@ function LoteFrutalForm({ index, register, setValue, watch, errors }) {
             min="0"
             max="100"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.porcentaje_exportacion`)}
           />
         </div>
@@ -362,6 +377,7 @@ function LoteFrutalForm({ index, register, setValue, watch, errors }) {
             min="0"
             max="100"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.tasa_descarte`)}
           />
         </div>
@@ -392,7 +408,9 @@ function LoteFrutalForm({ index, register, setValue, watch, errors }) {
             id={`precio_${index}`}
             type="number"
             step="0.01"
+            min="0"
             placeholder="0"
+            className={numberInputClass}
             {...register(`lotes.${index}.precio_venta_kg`)}
           />
         </div>
