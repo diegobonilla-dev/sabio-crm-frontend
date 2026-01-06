@@ -13,6 +13,8 @@ import { indicadoresP4GSchema } from "@/lib/validations/diagnostico.schema";
 import { Scale, Users } from "lucide-react";
 
 export default function Step5IndicadoresP4G({ data, onChange }) {
+  // Clase CSS para ocultar spin buttons en inputs numéricos
+  const numberInputClass = "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
   const {
     register,
     formState: { errors },
@@ -198,8 +200,8 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
                   id="hombres_beneficiarios_directos_sabio"
                   type="number"
                   min="0"
+                  className={`mt-1 ${numberInputClass}`}
                   {...register("impacto_social_genero.hombres_beneficiarios_directos_sabio")}
-                  className="mt-1"
                 />
               </div>
 
@@ -211,8 +213,8 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
                   id="mujeres_beneficiarias_directas_sabio"
                   type="number"
                   min="0"
+                  className={`mt-1 ${numberInputClass}`}
                   {...register("impacto_social_genero.mujeres_beneficiarias_directas_sabio")}
-                  className="mt-1"
                 />
               </div>
             </div>
@@ -231,8 +233,8 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
                   id="hombres_trabajadores_empresa"
                   type="number"
                   min="0"
+                  className={`mt-1 ${numberInputClass}`}
                   {...register("impacto_social_genero.hombres_trabajadores_empresa")}
-                  className="mt-1"
                 />
               </div>
 
@@ -244,8 +246,8 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
                   id="mujeres_trabajadoras_empresa"
                   type="number"
                   min="0"
+                  className={`mt-1 ${numberInputClass}`}
                   {...register("impacto_social_genero.mujeres_trabajadoras_empresa")}
-                  className="mt-1"
                 />
               </div>
             </div>
@@ -264,8 +266,8 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
                   id="hombres_beneficiarios_indirectos"
                   type="number"
                   min="0"
+                  className={`mt-1 ${numberInputClass}`}
                   {...register("impacto_social_genero.hombres_beneficiarios_indirectos")}
-                  className="mt-1"
                 />
               </div>
 
@@ -277,8 +279,8 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
                   id="mujeres_beneficiarias_indirectas"
                   type="number"
                   min="0"
+                  className={`mt-1 ${numberInputClass}`}
                   {...register("impacto_social_genero.mujeres_beneficiarias_indirectas")}
-                  className="mt-1"
                 />
               </div>
             </div>
@@ -308,8 +310,8 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
                       id="empleos_masculinos_nuevos"
                       type="number"
                       min="0"
+                      className={`mt-1 ${numberInputClass}`}
                       {...register("impacto_social_genero.empleos_masculinos_nuevos")}
-                      className="mt-1"
                     />
                   </div>
 
@@ -321,8 +323,8 @@ export default function Step5IndicadoresP4G({ data, onChange }) {
                       id="empleos_femeninos_nuevos"
                       type="number"
                       min="0"
+                      className={`mt-1 ${numberInputClass}`}
                       {...register("impacto_social_genero.empleos_femeninos_nuevos")}
-                      className="mt-1"
                     />
                   </div>
                 </div>
