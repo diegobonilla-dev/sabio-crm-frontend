@@ -26,6 +26,9 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 export default function Step4Frutales({ data, onChange }) {
   const [activeLoteIndex, setActiveLoteIndex] = useState(null);
 
+  // Clase CSS para ocultar spin buttons en inputs numéricos
+  const numberInputClass = "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
   const {
     register,
     control,
@@ -212,6 +215,7 @@ export default function Step4Frutales({ data, onChange }) {
           register={register}
           watch={watch}
           setValue={setValue}
+          numberInputClass={numberInputClass}
         />
 
         {/* Fertilización */}
@@ -219,6 +223,7 @@ export default function Step4Frutales({ data, onChange }) {
           register={register}
           setValue={setValue}
           usaAbonoOrganico={usaAbonoOrganico}
+          numberInputClass={numberInputClass}
         />
       </div>
 
@@ -235,8 +240,8 @@ export default function Step4Frutales({ data, onChange }) {
           <Input
             type="number"
             min="0"
+            className={`max-w-xs mt-2 ${numberInputClass}`}
             {...register("cuantos_lotes_evaluados")}
-            className="max-w-xs mt-2"
             placeholder="Número de lotes a evaluar"
           />
         </div>
@@ -257,6 +262,7 @@ export default function Step4Frutales({ data, onChange }) {
               watch={watch}
               setValue={setValue}
               getValues={getValues}
+              numberInputClass={numberInputClass}
             />
           ))}
         </div>
@@ -369,7 +375,7 @@ function SeccionPlateoYDeshierbe({ watch, setValue }) {
 /**
  * Sub-componente: Resiembras y Podas
  */
-function SeccionResiembrasYPodas({ register, watch, setValue }) {
+function SeccionResiembrasYPodas({ register, watch, setValue, numberInputClass }) {
   const tipoPodas = watch("general.tipo_podas") || [];
 
   const handleTipoPodaChange = (tipo, checked) => {
@@ -389,6 +395,7 @@ function SeccionResiembrasYPodas({ register, watch, setValue }) {
         <Input
           type="number"
           min="0"
+          className={numberInputClass}
           {...register("general.arboles_resembrados")}
           placeholder="Número de árboles resembrados"
         />
@@ -424,7 +431,7 @@ function SeccionResiembrasYPodas({ register, watch, setValue }) {
 /**
  * Sub-componente: Fertilización
  */
-function SeccionFertilizacion({ register, setValue, usaAbonoOrganico }) {
+function SeccionFertilizacion({ register, setValue, usaAbonoOrganico, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-white rounded-lg border">
       <h4 className="font-medium text-blue-900">Fertilización</h4>
@@ -434,6 +441,7 @@ function SeccionFertilizacion({ register, setValue, usaAbonoOrganico }) {
         <Input
           type="number"
           min="0"
+          className={numberInputClass}
           {...register("general.cantidad_fertilizante_sintetico_por_arbol")}
           placeholder="0"
         />
@@ -461,6 +469,7 @@ function SeccionFertilizacion({ register, setValue, usaAbonoOrganico }) {
             <Input
               type="number"
               min="0"
+              className={numberInputClass}
               {...register("general.cantidad_abono_organico_por_arbol")}
               placeholder="0"
             />
@@ -484,7 +493,8 @@ function LoteEvaluadoItem({
   control,
   watch,
   setValue,
-  getValues
+  getValues,
+  numberInputClass
 }) {
   return (
     <Collapsible open={isActive} onOpenChange={onToggle}>
@@ -537,6 +547,7 @@ function LoteEvaluadoItem({
               register={register}
               watch={watch}
               setValue={setValue}
+              numberInputClass={numberInputClass}
             />
 
             {/* Puntos de Muestreo */}
@@ -547,6 +558,7 @@ function LoteEvaluadoItem({
               watch={watch}
               setValue={setValue}
               getValues={getValues}
+              numberInputClass={numberInputClass}
             />
 
             {/* Plagas y Enfermedades */}
@@ -566,7 +578,7 @@ function LoteEvaluadoItem({
 /**
  * Sub-componente: Datos Básicos del Lote
  */
-function DatosBasicosLote({ index, register, watch, setValue }) {
+function DatosBasicosLote({ index, register, watch, setValue, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-blue-50/30 rounded-lg border border-blue-200">
       <h4 className="font-medium text-blue-900">Datos Básicos del Lote</h4>
@@ -589,6 +601,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
             <Input
               type="number"
               min="0"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.numero_arboles_ha`)}
               placeholder="Árboles por hectárea"
             />
@@ -602,6 +615,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
               type="number"
               min="0"
               step="0.1"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.edad_cultivo_siembra`)}
               placeholder="Años desde siembra"
             />
@@ -613,6 +627,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
               type="number"
               min="0"
               step="0.1"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.edad_cultivo_produccion`)}
               placeholder="Años en producción"
             />
@@ -634,6 +649,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
             <Input
               type="number"
               min="0"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.rendimiento_kg_ha`)}
               placeholder="Kg por hectárea"
             />
@@ -665,6 +681,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
               type="number"
               min="0"
               step="0.01"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.produccion_promedio_arbol`)}
               placeholder="Kg por árbol"
             />
@@ -676,6 +693,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
               type="number"
               min="0"
               max="100"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.porcentaje_exportacion`)}
               placeholder="0-100"
             />
@@ -687,6 +705,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
               type="number"
               min="0"
               max="100"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.tasa_descarte`)}
               placeholder="0-100"
             />
@@ -718,6 +737,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
               type="number"
               min="0"
               step="0.01"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.precio_venta_kg`)}
               placeholder="Precio por kg"
             />
@@ -735,6 +755,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
             <Input
               type="number"
               min="0"
+              className={numberInputClass}
               {...register(`lotes_evaluados.${index}.area_lote_m2`)}
               placeholder="Área en m²"
             />
@@ -773,7 +794,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
 /**
  * Sub-componente: Puntos de Muestreo
  */
-function PuntosMuestreo({ index, control, register, watch, setValue }) {
+function PuntosMuestreo({ index, control, register, watch, setValue, numberInputClass }) {
   const { fields: puntos, append: appendPunto, remove: removePunto } = useFieldArray({
     control,
     name: `lotes_evaluados.${index}.puntos_muestreo`
@@ -852,6 +873,7 @@ function PuntosMuestreo({ index, control, register, watch, setValue }) {
             watch={watch}
             setValue={setValue}
             totalPuntos={puntos.length}
+            numberInputClass={numberInputClass}
           />
         ))}
       </div>
@@ -877,7 +899,8 @@ function PuntoMuestreoItem({
   register,
   watch,
   setValue,
-  totalPuntos
+  totalPuntos,
+  numberInputClass
 }) {
   return (
     <Collapsible open={isActive} onOpenChange={onToggle}>
@@ -930,6 +953,7 @@ function PuntoMuestreoItem({
                     type="number"
                     min="0"
                     max="45"
+                    className={numberInputClass}
                     {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.pendiente_porcentaje`)}
                     placeholder="0-45%"
                   />
@@ -1069,6 +1093,7 @@ function PuntoMuestreoItem({
                   min="0"
                   max="90"
                   step="1"
+                  className={numberInputClass}
                   {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.penetrometro_200psi_cm`)}
                   placeholder="0-90 cm"
                 />
@@ -1163,6 +1188,7 @@ function PuntoMuestreoItem({
                 type="number"
                 min="0"
                 step="0.01"
+                className={numberInputClass}
                 {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.conductividad_electrica`)}
                 placeholder="Valor de conductividad eléctrica"
               />
@@ -1191,6 +1217,7 @@ function PuntoMuestreoItem({
               register={register}
               watch={watch}
               setValue={setValue}
+              numberInputClass={numberInputClass}
             />
 
             {/* Fotos (2 fotos para Frutales) */}
@@ -1295,7 +1322,7 @@ function SintomasEstres({ loteIndex, puntoIndex, watch, setValue }) {
 /**
  * Sub-componente: Biodiversidad
  */
-function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
+function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
       <h5 className="font-medium text-green-900">Biodiversidad del Suelo</h5>
@@ -1307,6 +1334,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.lombrices_rojas`)}
             placeholder="0"
           />
@@ -1316,6 +1344,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.lombrices_grises`)}
             placeholder="0"
           />
@@ -1325,6 +1354,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.lombrices_blancas`)}
             placeholder="0"
           />
@@ -1334,6 +1364,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.huevos_lombrices`)}
             placeholder="0"
           />
@@ -1343,6 +1374,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.tipos_diferentes_huevos`)}
             placeholder="0"
           />

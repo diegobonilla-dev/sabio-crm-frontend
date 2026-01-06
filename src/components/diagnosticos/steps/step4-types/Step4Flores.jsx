@@ -26,6 +26,9 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 export default function Step4Flores({ data, onChange }) {
   const [activeBloqueIndex, setActiveBloqueIndex] = useState(null);
 
+  // Clase CSS para ocultar spin buttons en inputs numéricos
+  const numberInputClass = "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
   const {
     register,
     control,
@@ -203,6 +206,7 @@ export default function Step4Flores({ data, onChange }) {
           register={register}
           watch={watch}
           setValue={setValue}
+          numberInputClass={numberInputClass}
         />
 
         {/* Fertilización */}
@@ -210,6 +214,7 @@ export default function Step4Flores({ data, onChange }) {
           register={register}
           setValue={setValue}
           usaAbonoOrganico={usaAbonoOrganico}
+          numberInputClass={numberInputClass}
         />
       </div>
 
@@ -226,8 +231,8 @@ export default function Step4Flores({ data, onChange }) {
           <Input
             type="number"
             min="0"
+            className={`max-w-xs mt-2 ${numberInputClass}`}
             {...register("cuantos_bloques_evaluados")}
-            className="max-w-xs mt-2"
             placeholder="Número de bloques a evaluar"
           />
         </div>
@@ -248,6 +253,7 @@ export default function Step4Flores({ data, onChange }) {
               watch={watch}
               setValue={setValue}
               getValues={getValues}
+              numberInputClass={numberInputClass}
             />
           ))}
         </div>
@@ -360,7 +366,7 @@ function SeccionPlateoYDeshierbe({ watch, setValue }) {
 /**
  * Sub-componente: Resiembras y Podas
  */
-function SeccionResiembrasYPodas({ register, watch, setValue }) {
+function SeccionResiembrasYPodas({ register, watch, setValue, numberInputClass }) {
   const tipoPodas = watch("general.tipo_podas") || [];
 
   const handleTipoPodaChange = (tipo, checked) => {
@@ -380,6 +386,7 @@ function SeccionResiembrasYPodas({ register, watch, setValue }) {
         <Input
           type="number"
           min="0"
+          className={numberInputClass}
           {...register("general.plantas_resembradas")}
           placeholder="Número de plantas resembradas"
         />
@@ -415,7 +422,7 @@ function SeccionResiembrasYPodas({ register, watch, setValue }) {
 /**
  * Sub-componente: Fertilización
  */
-function SeccionFertilizacion({ register, setValue, usaAbonoOrganico }) {
+function SeccionFertilizacion({ register, setValue, usaAbonoOrganico, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-white rounded-lg border">
       <h4 className="font-medium text-blue-900">Fertilización</h4>
@@ -425,6 +432,7 @@ function SeccionFertilizacion({ register, setValue, usaAbonoOrganico }) {
         <Input
           type="number"
           min="0"
+          className={numberInputClass}
           {...register("general.cantidad_fertilizante_sintetico_por_cama")}
           placeholder="0"
         />
@@ -452,6 +460,7 @@ function SeccionFertilizacion({ register, setValue, usaAbonoOrganico }) {
             <Input
               type="number"
               min="0"
+              className={numberInputClass}
               {...register("general.cantidad_abono_organico_por_cama")}
               placeholder="0"
             />
@@ -475,7 +484,8 @@ function BloqueEvaluadoItem({
   control,
   watch,
   setValue,
-  getValues
+  getValues,
+  numberInputClass
 }) {
   return (
     <Collapsible open={isActive} onOpenChange={onToggle}>
@@ -528,6 +538,7 @@ function BloqueEvaluadoItem({
               register={register}
               watch={watch}
               setValue={setValue}
+              numberInputClass={numberInputClass}
             />
 
             {/* Puntos de Muestreo */}
@@ -538,6 +549,7 @@ function BloqueEvaluadoItem({
               watch={watch}
               setValue={setValue}
               getValues={getValues}
+              numberInputClass={numberInputClass}
             />
 
             {/* Plagas y Enfermedades */}
@@ -557,7 +569,7 @@ function BloqueEvaluadoItem({
 /**
  * Sub-componente: Datos Básicos del Bloque
  */
-function DatosBasicosBloque({ index, register, watch, setValue }) {
+function DatosBasicosBloque({ index, register, watch, setValue, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-blue-50/30 rounded-lg border border-blue-200">
       <h4 className="font-medium text-blue-900">Datos Básicos del Bloque</h4>
@@ -576,6 +588,7 @@ function DatosBasicosBloque({ index, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`bloques_evaluados.${index}.area_bloque_m2`)}
             placeholder="Área en m²"
           />
@@ -615,7 +628,7 @@ function DatosBasicosBloque({ index, register, watch, setValue }) {
 /**
  * Sub-componente: Puntos de Muestreo
  */
-function PuntosMuestreo({ index, control, register, watch, setValue }) {
+function PuntosMuestreo({ index, control, register, watch, setValue, numberInputClass }) {
   const { fields: puntos, append: appendPunto, remove: removePunto } = useFieldArray({
     control,
     name: `bloques_evaluados.${index}.puntos_muestreo`
@@ -694,6 +707,7 @@ function PuntosMuestreo({ index, control, register, watch, setValue }) {
             watch={watch}
             setValue={setValue}
             totalPuntos={puntos.length}
+            numberInputClass={numberInputClass}
           />
         ))}
       </div>
@@ -719,7 +733,8 @@ function PuntoMuestreoItem({
   register,
   watch,
   setValue,
-  totalPuntos
+  totalPuntos,
+  numberInputClass
 }) {
   return (
     <Collapsible open={isActive} onOpenChange={onToggle}>
@@ -772,6 +787,7 @@ function PuntoMuestreoItem({
                     type="number"
                     min="0"
                     max="100"
+                    className={numberInputClass}
                     {...register(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.pendiente_porcentaje`)}
                     placeholder="0-100%"
                   />
@@ -911,6 +927,7 @@ function PuntoMuestreoItem({
                   min="0"
                   max="90"
                   step="1"
+                  className={numberInputClass}
                   {...register(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.penetrometro_200psi_cm`)}
                   placeholder="0-90 cm"
                 />
@@ -1005,6 +1022,7 @@ function PuntoMuestreoItem({
                 type="number"
                 min="0"
                 step="0.01"
+                className={numberInputClass}
                 {...register(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.conductividad_electrica`)}
                 placeholder="Valor de conductividad eléctrica"
               />
@@ -1033,6 +1051,7 @@ function PuntoMuestreoItem({
               register={register}
               watch={watch}
               setValue={setValue}
+              numberInputClass={numberInputClass}
             />
 
             {/* Fotos */}
@@ -1137,7 +1156,7 @@ function SintomasEstres({ bloqueIndex, puntoIndex, watch, setValue }) {
 /**
  * Sub-componente: Biodiversidad
  */
-function Biodiversidad({ bloqueIndex, puntoIndex, register, watch, setValue }) {
+function Biodiversidad({ bloqueIndex, puntoIndex, register, watch, setValue, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
       <h5 className="font-medium text-green-900">Biodiversidad del Suelo</h5>
@@ -1149,6 +1168,7 @@ function Biodiversidad({ bloqueIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.lombrices_rojas`)}
             placeholder="0"
           />
@@ -1158,6 +1178,7 @@ function Biodiversidad({ bloqueIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.lombrices_grises`)}
             placeholder="0"
           />
@@ -1167,6 +1188,7 @@ function Biodiversidad({ bloqueIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.lombrices_blancas`)}
             placeholder="0"
           />
@@ -1176,6 +1198,7 @@ function Biodiversidad({ bloqueIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.huevos_lombrices`)}
             placeholder="0"
           />
@@ -1185,6 +1208,7 @@ function Biodiversidad({ bloqueIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`bloques_evaluados.${bloqueIndex}.puntos_muestreo.${puntoIndex}.tipos_diferentes_huevos`)}
             placeholder="0"
           />

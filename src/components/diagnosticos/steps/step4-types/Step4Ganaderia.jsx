@@ -26,6 +26,9 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 export default function Step4Ganaderia({ data, onChange }) {
   const [activeLoteIndex, setActiveLoteIndex] = useState(null);
 
+  // Clase CSS para ocultar spin buttons en inputs numéricos
+  const numberInputClass = "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
   const {
     register,
     control,
@@ -205,6 +208,7 @@ export default function Step4Ganaderia({ data, onChange }) {
                 <Input
                   type="number"
                   min="0"
+                  className={numberInputClass}
                   {...register("general.periodo_rotacion_dias")}
                   placeholder="Ej: 30"
                 />
@@ -214,6 +218,7 @@ export default function Step4Ganaderia({ data, onChange }) {
                 <Input
                   type="number"
                   min="0"
+                  className={numberInputClass}
                   {...register("general.periodo_ocupacion_dias")}
                   placeholder="Ej: 1"
                 />
@@ -223,6 +228,7 @@ export default function Step4Ganaderia({ data, onChange }) {
                 <Input
                   type="number"
                   min="0"
+                  className={numberInputClass}
                   {...register("general.franja_pastoreo_m2")}
                   placeholder="Opcional"
                 />
@@ -339,8 +345,8 @@ export default function Step4Ganaderia({ data, onChange }) {
           <Input
             type="number"
             min="0"
+            className={`max-w-xs mt-2 ${numberInputClass}`}
             {...register("cuantos_lotes_evaluados")}
-            className="max-w-xs mt-2"
             placeholder="Número de lotes a evaluar"
           />
         </div>
@@ -361,6 +367,7 @@ export default function Step4Ganaderia({ data, onChange }) {
               watch={watch}
               setValue={setValue}
               getValues={getValues}
+              numberInputClass={numberInputClass}
             />
           ))}
         </div>
@@ -392,7 +399,8 @@ function LoteEvaluadoItem({
   control,
   watch,
   setValue,
-  getValues
+  getValues,
+  numberInputClass
 }) {
   const seRealizaronMediciones = watch(`lotes_evaluados.${index}.mediciones_forraje.se_realizaron`);
 
@@ -447,6 +455,7 @@ function LoteEvaluadoItem({
               register={register}
               watch={watch}
               setValue={setValue}
+              numberInputClass={numberInputClass}
             />
 
             {/* Mediciones de Forraje */}
@@ -456,6 +465,7 @@ function LoteEvaluadoItem({
               watch={watch}
               setValue={setValue}
               seRealizaron={seRealizaronMediciones}
+              numberInputClass={numberInputClass}
             />
 
             {/* Puntos de Muestreo */}
@@ -466,6 +476,7 @@ function LoteEvaluadoItem({
               watch={watch}
               setValue={setValue}
               getValues={getValues}
+              numberInputClass={numberInputClass}
             />
 
             {/* Plagas y Enfermedades */}
@@ -485,7 +496,7 @@ function LoteEvaluadoItem({
 /**
  * Sub-componente: Datos Básicos del Lote
  */
-function DatosBasicosLote({ index, register, watch, setValue }) {
+function DatosBasicosLote({ index, register, watch, setValue, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-blue-50/30 rounded-lg border border-blue-200">
       <h4 className="font-medium text-blue-900">Datos Básicos del Lote</h4>
@@ -504,6 +515,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${index}.area_m2`)}
             placeholder="Área en m²"
           />
@@ -533,7 +545,7 @@ function DatosBasicosLote({ index, register, watch, setValue }) {
 /**
  * Sub-componente: Mediciones de Forraje
  */
-function MedicionesForraje({ index, register, watch, setValue, seRealizaron }) {
+function MedicionesForraje({ index, register, watch, setValue, seRealizaron, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-green-50/30 rounded-lg border border-green-200">
       <h4 className="font-medium text-green-900">Mediciones de Forraje</h4>
@@ -569,6 +581,7 @@ function MedicionesForraje({ index, register, watch, setValue, seRealizaron }) {
                 type="number"
                 step="0.01"
                 min="0"
+                className={numberInputClass}
                 {...register(`lotes_evaluados.${index}.mediciones_forraje.aforo_entrada_kg_ms_m2`)}
                 placeholder="Opcional"
               />
@@ -615,6 +628,7 @@ function MedicionesForraje({ index, register, watch, setValue, seRealizaron }) {
                 type="number"
                 step="0.01"
                 min="0"
+                className={numberInputClass}
                 {...register(`lotes_evaluados.${index}.mediciones_forraje.aforo_salida_kg_ms_m2`)}
                 placeholder="Opcional"
               />
@@ -654,6 +668,7 @@ function MedicionesForraje({ index, register, watch, setValue, seRealizaron }) {
                 type="number"
                 step="0.1"
                 min="0"
+                className={numberInputClass}
                 {...register(`lotes_evaluados.${index}.mediciones_forraje.grados_brix`)}
                 placeholder="Opcional"
               />
@@ -665,6 +680,7 @@ function MedicionesForraje({ index, register, watch, setValue, seRealizaron }) {
                 step="0.1"
                 min="0"
                 max="14"
+                className={numberInputClass}
                 {...register(`lotes_evaluados.${index}.mediciones_forraje.ph_hoja`)}
                 placeholder="Opcional"
               />
@@ -686,7 +702,7 @@ function MedicionesForraje({ index, register, watch, setValue, seRealizaron }) {
 /**
  * Sub-componente: Puntos de Muestreo
  */
-function PuntosMuestreo({ index, control, register, watch, setValue }) {
+function PuntosMuestreo({ index, control, register, watch, setValue, numberInputClass }) {
   const { fields: puntos, append: appendPunto, remove: removePunto } = useFieldArray({
     control,
     name: `lotes_evaluados.${index}.puntos_muestreo`
@@ -764,6 +780,7 @@ function PuntosMuestreo({ index, control, register, watch, setValue }) {
             watch={watch}
             setValue={setValue}
             totalPuntos={puntos.length}
+            numberInputClass={numberInputClass}
           />
         ))}
       </div>
@@ -789,7 +806,8 @@ function PuntoMuestreoItem({
   register,
   watch,
   setValue,
-  totalPuntos
+  totalPuntos,
+  numberInputClass
 }) {
   return (
     <Collapsible open={isActive} onOpenChange={onToggle}>
@@ -842,6 +860,7 @@ function PuntoMuestreoItem({
                     type="number"
                     min="0"
                     max="45"
+                    className={numberInputClass}
                     {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.pendiente_porcentaje`)}
                     placeholder="0-45%"
                   />
@@ -981,6 +1000,7 @@ function PuntoMuestreoItem({
                   min="0"
                   max="90"
                   step="1"
+                  className={numberInputClass}
                   {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.penetrometro_200psi_cm`)}
                   placeholder="0-90 cm"
                 />
@@ -1091,6 +1111,7 @@ function PuntoMuestreoItem({
               register={register}
               watch={watch}
               setValue={setValue}
+              numberInputClass={numberInputClass}
             />
 
             {/* Fotos */}
@@ -1196,7 +1217,7 @@ function SintomasEstres({ loteIndex, puntoIndex, watch, setValue }) {
 /**
  * Sub-componente: Biodiversidad
  */
-function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
+function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue, numberInputClass }) {
   return (
     <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
       <h5 className="font-medium text-green-900">Biodiversidad del Suelo</h5>
@@ -1208,6 +1229,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.lombrices_rojas`)}
             placeholder="0"
           />
@@ -1217,6 +1239,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.lombrices_grises`)}
             placeholder="0"
           />
@@ -1226,6 +1249,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.lombrices_blancas`)}
             placeholder="0"
           />
@@ -1235,6 +1259,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.huevos_lombrices`)}
             placeholder="0"
           />
@@ -1244,6 +1269,7 @@ function Biodiversidad({ loteIndex, puntoIndex, register, watch, setValue }) {
           <Input
             type="number"
             min="0"
+            className={numberInputClass}
             {...register(`lotes_evaluados.${loteIndex}.puntos_muestreo.${puntoIndex}.tipos_diferentes_huevos`)}
             placeholder="0"
           />
