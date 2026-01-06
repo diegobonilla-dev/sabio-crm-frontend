@@ -6,8 +6,8 @@ export const createFincaSchema = z.object({
   tipo_produccion: z.enum(['Ganaderia', 'Flores', 'Frutales', 'Cafe', 'Aguacate', 'Mixto', 'Otro'], {
     required_error: "Selecciona un tipo de producción"
   }),
-  municipio: z.string().optional(),
-  departamento: z.string().optional(),
+  municipio: z.string().min(1, "El municipio es obligatorio"),
+  departamento: z.string().min(1, "El departamento es obligatorio"),
   vereda: z.string().optional(),
   coordenadas_gps: z.string().optional(),
   cultivo_principal: z.string().optional(),

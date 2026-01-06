@@ -24,6 +24,16 @@ const tipoColors = {
   'Otro': 'bg-gray-500'
 };
 
+// Función para capitalizar texto
+const capitalize = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 export default function FincasTable({ fincas, onEdit, onDelete, onAsignarCorporativo }) {
   const { searchQuery, tipoFilter, empresaFilter } = useFincaFilterStore();
 
@@ -78,8 +88,8 @@ export default function FincasTable({ fincas, onEdit, onDelete, onAsignarCorpora
               <TableCell>{finca.area}</TableCell>
               <TableCell>
                 {finca.municipio && finca.departamento
-                  ? `${finca.municipio}, ${finca.departamento}`
-                  : finca.municipio || finca.departamento || "-"}
+                  ? `${capitalize(finca.municipio)}, ${capitalize(finca.departamento)}`
+                  : capitalize(finca.municipio) || capitalize(finca.departamento) || "-"}
               </TableCell>
               <TableCell>
                 <span className="text-sm text-gray-600">

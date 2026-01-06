@@ -17,6 +17,11 @@ import {
 import { useFincaMutations } from "@/hooks/fincas/useFincaMutations";
 import { createFincaSchema } from "@/lib/validations/finca.schema";
 import axiosInstance from "@/app/lib/axios";
+import { useDepartamentos, useMunicipios } from "@/hooks/ubicaciones/useUbicaciones";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 const tiposProduccion = ['Ganaderia', 'Flores', 'Frutales', 'Cafe', 'Aguacate', 'Mixto', 'Otro'];
 
@@ -25,6 +30,11 @@ export default function FincaFormModal({ open, onOpenChange, finca }) {
   const isEditing = !!finca;
   const [empresas, setEmpresas] = useState([]);
   const [isLoadingEmpresas, setIsLoadingEmpresas] = useState(true);
+  const [selectedDepartamento, setSelectedDepartamento] = useState("");
+  const [openMunicipioCombobox, setOpenMunicipioCombobox] = useState(false);
+
+  const { data: departamentos, isLoading: isLoadingDepartamentos } = useDepartamentos();
+  const { data: municipiosData, isLoading: isLoadingMunicipios } = useMunicipios(selectedDepartamento);
 
   const {
     register,
@@ -98,6 +108,19 @@ export default function FincaFormModal({ open, onOpenChange, finca }) {
     }
   }, [finca, reset]);
 
+  useEffect(() => {
+    const dept = watch("departamento");
+    if (dept && dept !== selectedDepartamento) {
+      setSelectedDepartamento(dept);
+    }
+  }, [watch("departamento"), selectedDepartamento]);
+
+  useEffect(() => {
+    if (finca && finca.departamento) {
+      setSelectedDepartamento(finca.departamento);
+    }
+  }, [finca]);
+
   const onSubmit = async (data) => {
     try {
       if (isEditing) {
@@ -121,6 +144,15 @@ export default function FincaFormModal({ open, onOpenChange, finca }) {
   const handleClose = () => {
     onOpenChange(false);
     reset();
+  };
+
+  const capitalize = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   return (
@@ -226,24 +258,88 @@ export default function FincaFormModal({ open, onOpenChange, finca }) {
               />
             </div>
 
-            {/* Departamento */}
+            {/* Departamento - Select Simple */}
             <div>
-              <Label htmlFor="departamento">Departamento</Label>
-              <Input
-                id="departamento"
-                {...register("departamento")}
-                placeholder="Ej: Antioquia"
-              />
+              <Label htmlFor="departamento">Departamento *</Label>
+              <Select
+                value={watch("departamento")}
+                onValueChange={(value) => {
+                  setValue("departamento", value);
+                  setSelectedDepartamento(value);
+                  setValue("municipio", ""); // Resetear municipio al cambiar departamento
+                }}
+                disabled={isLoadingDepartamentos}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={
+                    isLoadingDepartamentos ? "Cargando departamentos..." : "Seleccionar departamento"
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {departamentos?.map((dept) => (
+                    <SelectItem key={dept.codigo} value={dept.departamento}>
+                      {capitalize(dept.departamento)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.departamento && (
+                <p className="text-sm text-destructive mt-1">{errors.departamento.message}</p>
+              )}
             </div>
 
-            {/* Municipio */}
+            {/* Municipio - Combobox con Búsqueda */}
             <div>
-              <Label htmlFor="municipio">Municipio</Label>
-              <Input
-                id="municipio"
-                {...register("municipio")}
-                placeholder="Ej: Medellín"
-              />
+              <Label htmlFor="municipio">Municipio *</Label>
+              <Popover open={openMunicipioCombobox} onOpenChange={setOpenMunicipioCombobox}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openMunicipioCombobox}
+                    className="w-full justify-between"
+                    disabled={!selectedDepartamento || isLoadingMunicipios}
+                  >
+                    {watch("municipio")
+                      ? capitalize(watch("municipio"))
+                      : selectedDepartamento
+                      ? "Seleccionar municipio"
+                      : "Primero selecciona un departamento"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Buscar municipio..." />
+                    <CommandList>
+                      <CommandEmpty>No se encontró el municipio.</CommandEmpty>
+                      <CommandGroup>
+                        {municipiosData?.municipios?.map((municipio) => (
+                          <CommandItem
+                            key={municipio}
+                            value={municipio}
+                            onSelect={(currentValue) => {
+                              setValue("municipio", currentValue.toUpperCase());
+                              setOpenMunicipioCombobox(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                watch("municipio") === municipio ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {capitalize(municipio)}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              {errors.municipio && (
+                <p className="text-sm text-destructive mt-1">{errors.municipio.message}</p>
+              )}
             </div>
 
             {/* Vereda */}
