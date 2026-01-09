@@ -181,6 +181,7 @@ export default function Step2Ganaderia({ data, onChange }) {
                       setValue={setValue}
                       watch={watch}
                       errors={errors}
+                      numberInputClass={numberInputClass}
                     />
                   </div>
                 </CollapsibleContent>
@@ -213,7 +214,7 @@ export default function Step2Ganaderia({ data, onChange }) {
 // ============================================
 // COMPONENTE: Formulario de un lote individual
 // ============================================
-function LoteForm({ index, register, control, setValue, watch, errors }) {
+function LoteForm({ index, register, control, setValue, watch, errors, numberInputClass }) {
   const usaSuplemento = watch(`lotes.${index}.usa_suplemento`);
 
   return (
@@ -354,6 +355,7 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
           control={control}
           register={register}
           errors={errors}
+          numberInputClass={numberInputClass}
         />
       )}
 
@@ -363,6 +365,7 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
         control={control}
         register={register}
         errors={errors}
+        numberInputClass={numberInputClass}
       />
 
       {/* Grid final: raza y peso */}
@@ -398,7 +401,7 @@ function LoteForm({ index, register, control, setValue, watch, errors }) {
 // ============================================
 // COMPONENTE: Array dinámico de Suplementos
 // ============================================
-function SuplementosArray({ loteIndex, control, register, errors }) {
+function SuplementosArray({ loteIndex, control, register, errors, numberInputClass }) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: `lotes.${loteIndex}.suplementos`
@@ -497,7 +500,7 @@ function SuplementosArray({ loteIndex, control, register, errors }) {
 // ============================================
 // COMPONENTE: Array dinámico de Materia Seca
 // ============================================
-function MateriaSecaArray({ loteIndex, control, register, errors }) {
+function MateriaSecaArray({ loteIndex, control, register, errors, numberInputClass }) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: `lotes.${loteIndex}.materia_seca`
