@@ -15,7 +15,7 @@ const protectedRoutes = ['/admin', '/crm', '/fincas', '/settings'];
 const authRoutes = ['/login'];
 
 // Rutas que requieren rol específico de admin
-const adminOnlyRoutes = ['/admin/usuarios'];
+const adminOnlyRoutes = ['/admin/usuarios', '/fincas/admin'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

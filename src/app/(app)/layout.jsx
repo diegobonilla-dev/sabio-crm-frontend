@@ -11,7 +11,8 @@ import {
   Users,
   Sprout,
   ClipboardList,
-  Settings
+  Settings,
+  Shield
 } from "lucide-react";
 import useAuthStore from "@/app/lib/store";
 import { useSidebarCollapse } from "@/hooks/useSidebarCollapse";
@@ -115,8 +116,9 @@ export default function ProtectedLayout({ children }) {
                 icon={Sprout}
                 label="Fincas"
                 items={[
-                  { href: '/fincas', label: 'Fincas', icon: Sprout },
-                  { href: '/fincas/diagnosticos', label: 'Diagnósticos', icon: ClipboardList }
+                  { href: '/fincas', label: 'Dashboard', icon: LayoutDashboard },
+                  { href: '/fincas/diagnosticos', label: 'Diagnósticos', icon: ClipboardList },
+                  ...(isAdmin ? [{ href: '/fincas/admin', label: 'Admin', icon: Shield }] : [])
                 ]}
                 isCollapsed={isCollapsed}
               />
@@ -125,8 +127,8 @@ export default function ProtectedLayout({ children }) {
               <>
                 <NavItem
                   href="/fincas"
-                  icon={Sprout}
-                  label="Fincas"
+                  icon={LayoutDashboard}
+                  label="Dashboard"
                   isCollapsed={isCollapsed}
                 />
                 <NavItem
@@ -135,6 +137,14 @@ export default function ProtectedLayout({ children }) {
                   label="Diagnósticos"
                   isCollapsed={isCollapsed}
                 />
+                {isAdmin && (
+                  <NavItem
+                    href="/fincas/admin"
+                    icon={Shield}
+                    label="Admin"
+                    isCollapsed={isCollapsed}
+                  />
+                )}
               </>
             )}
 
@@ -202,7 +212,7 @@ export default function ProtectedLayout({ children }) {
                 className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors block"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Fincas
+                Dashboard
               </Link>
               <Link
                 href="/fincas/diagnosticos"
@@ -211,6 +221,16 @@ export default function ProtectedLayout({ children }) {
               >
                 Diagnósticos
               </Link>
+              {isAdmin && (
+                <Link
+                  href="/fincas/admin"
+                  className="px-10 py-2 text-sm text-gray-700 active:bg-gray-100 cursor-pointer transition-colors block flex items-center gap-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin
+                </Link>
+              )}
             </CollapsibleContent>
           </Collapsible>
 
