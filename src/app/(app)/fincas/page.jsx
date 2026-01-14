@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -15,18 +15,91 @@ import {
   ChevronRight
 } from "lucide-react";
 import dashboardData from "@/data/dashboard-fincas-mock.json";
+import { useFincas } from "@/hooks/fincas/useFincas";
 
 export default function FincasDashboardPage() {
   const [alertasOpen, setAlertasOpen] = useState(true);
   const [viewMode, setViewMode] = useState("grid"); // "grid" o "list"
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Obtener fincas reales desde el backend
+  const { data: fincasReales = [], isLoading, error } = useFincas();
+
+  // Helper: Mezclar datos reales (nombre, contacto) con datos fake aleatorios (métricas visuales)
+  const mezclarDatosRealYFake = (fincasReales) => {
+    return fincasReales.map((finca) => {
+      // Datos REALES del backend
+      const nombre = finca.nombre;
+      const contacto = finca.empresa_owner?.contacto_principal?.nombre || 'Sin contacto';
+
+      // Datos FAKE aleatorios para métricas visuales
+      const estados = [
+        {
+          estado: 'critico',
+          badgeText: 'Crítico',
+          badgeColor: 'bg-red-100 text-red-700',
+          color: 'text-red-600',
+          borderColor: 'border-red-500'
+        },
+        {
+          estado: 'alerta',
+          badgeText: 'Alerta',
+          badgeColor: 'bg-amber-100 text-amber-700',
+          color: 'text-amber-600',
+          borderColor: 'border-amber-500'
+        },
+        {
+          estado: 'cumplido',
+          badgeText: 'Cumplido',
+          badgeColor: 'bg-green-100 text-green-700',
+          color: 'text-green-600',
+          borderColor: 'border-green-500'
+        }
+      ];
+
+      const estadoAleatorio = estados[Math.floor(Math.random() * estados.length)];
+      const porcentajeAleatorio = Math.floor(Math.random() * 100) + 1;
+
+      const tendencias = [
+        { text: '↑ +15% esta semana', color: 'text-green-600' },
+        { text: '↑ +10% esta semana', color: 'text-green-600' },
+        { text: '↓ -5% esta semana', color: 'text-red-600' },
+        { text: '↓ -8% esta semana', color: 'text-red-600' },
+        { text: '→ Sin cambios', color: 'text-gray-600' }
+      ];
+      const tendenciaAleatoria = tendencias[Math.floor(Math.random() * tendencias.length)];
+
+      const infosAdicionales = [
+        'Muestras Tardías 5 Días',
+        'Muestras Tardías 8 Días',
+        'Próxima Visita en 48h',
+        'Próxima Visita en 72h',
+        'Próxima Visita en 96h'
+      ];
+      const infoAleatoria = infosAdicionales[Math.floor(Math.random() * infosAdicionales.length)];
+
+      return {
+        id: finca._id,
+        titulo: nombre,                    // REAL
+        contacto: contacto,                // REAL
+        descripcion: 'Descripción placeholder',
+        ...estadoAleatorio,
+        porcentaje: porcentajeAleatorio,
+        tendencia: tendenciaAleatoria.text,
+        tendenciaColor: tendenciaAleatoria.color,
+        infoAdicional: infoAleatoria
+      };
+    });
+  };
+
+  // Memorizar datos mezclados para evitar re-calcular en cada render
+  const fincasMezcladas = useMemo(() =>
+    mezclarDatosRealYFake(fincasReales),
+    [fincasReales]
+  );
+
   // Combinar todas las fincas
-  const todasLasFincas = [
-    ...dashboardData.fincas.columna1,
-    ...dashboardData.fincas.columna2,
-    ...dashboardData.fincas.columna3
-  ];
+  const todasLasFincas = fincasMezcladas;
 
   // Paginación dinámica según el modo de vista
   const itemsPerPage = viewMode === "grid" ? 9 : 5; // 9 para grid (3x3), 5 para list
@@ -51,6 +124,34 @@ export default function FincasDashboardPage() {
     setCurrentPage(1);
   }, [viewMode]);
 
+  // Manejo de estados de carga y error
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando fincas...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-red-600">Error al cargar fincas: {error.message}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col">
       <div className="container mx-auto py-3 px-2 flex-1 flex flex-col space-y-4">
@@ -61,7 +162,7 @@ export default function FincasDashboardPage() {
             <CardContent className="flex items-center justify-between p-6">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total de Fincas</p>
-                <p className="text-3xl font-bold text-gray-900">127</p>
+                <p className="text-3xl font-bold text-gray-900">{fincasReales.length}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
                 <Tractor className="h-6 w-6 text-green-600" />
